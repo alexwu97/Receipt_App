@@ -13,6 +13,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -21,11 +22,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    private final static String RECEIPT_SEND_REQUEST_URL = "https://receiptrecognize.cognitiveservices.azure.com/formrecognizer/v2.0-preview/prebuilt/receipt/analyze";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,24 +68,15 @@ public class MainActivity extends AppCompatActivity {
         buttonParse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = "https://api.myjson.com/bins/kp9wz";
+                String url = RECEIPT_SEND_REQUEST_URL;
 
-                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                JsonRequest request = new JsonRequest(Request.Method.POST, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try{
-                            JSONArray jsonArray = response.getJSONArray("employees");
-
-                            for (int i = 0; i < jsonArray.length(); i++){
-                                JSONObject employee = jsonArray.getJSONObject(i);
-
-                                String firstName = employee.getString("firstname");
-                                int age = employee.getInt("age");
-                                String mail = employee.getString("mail");
-
-                                textView.append(firstName + ", " + String.valueOf(age) + ", " + mail + "\n\n");
-                            }
-
+                            JSONArray data = response.getJSONArray("data");
+                            JSONObject headers = response.getJSONObject("headers");
+                                textView.append(headers.toString() + "\n\n");
                         } catch (JSONException e){
                             e.printStackTrace();
                         }
@@ -91,9 +86,42 @@ public class MainActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
                     }
-                });
+                })
 
-                queue.add(request);
+                {
+                    /** Passing some request headers* */
+                    @Override
+                    public Map getHeaders() throws AuthFailureError {
+                        HashMap headers = new HashMap();
+                        headers.put("Content-Type", "application/json");
+                        headers.put("Ocp-Apim-Subscription-Key", "f2b2a6bf17ff4e119dbdcda4a4ae3d94");
+                        return headers;
+                    }
+
+                    @Override
+                    public byte[] getBody() {
+                        JSONObject jsonBodyObj = new JSONObject();
+                        String requestBody = null;
+
+                        try {
+                            jsonBodyObj.put("url", "https://media-cdn.tripadvisor.com/media/photo-s/0e/4c/61/59/receipt-in-ec-approximatey.jpg");
+
+                            requestBody = jsonBodyObj.toString();
+                        } catch (JSONException e) {
+                            VolleyLog.wtf(e.getMessage(), "utf-8");
+                            return null;
+                        }
+
+                        try{
+                            return requestBody.getBytes("utf-8");
+                        }catch(UnsupportedEncodingException e){
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+
+                };
+                    queue.add(request);
             }
         });
 
