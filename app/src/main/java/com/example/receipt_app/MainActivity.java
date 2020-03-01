@@ -65,67 +65,54 @@ public class MainActivity extends AppCompatActivity {
 
         // Instantiate the RequestQueue.
         final RequestQueue queue = Volley.newRequestQueue(this);
+        JSONObject postData = new JSONObject();
+        try{
+            postData.put("url", "https://media-cdn.tripadvisor.com/media/photo-s/0e/4c/61/59/receipt-in-ec-approximatey.jpg");
+        }catch (Exception e){
+            // todo
+        }
+        final JSONObject postDataFinal = postData;
+
         buttonParse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String url = RECEIPT_SEND_REQUEST_URL;
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Ocp-Apim-Subscription-Key", "f2b2a6bf17ff4e119dbdcda4a4ae3d94");
+                JSONObject requestBody = new JSONObject();
+                try{
+                    requestBody.put("url", "https://media-cdn.tripadvisor.com/media/photo-s/0e/4c/61/59/receipt-in-ec-approximatey.jpg");
+                }catch(Exception e){
+                  e.printStackTrace();
+                }
 
-                JsonRequest request = new JsonRequest(Request.Method.POST, url, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try{
-                            JSONArray data = response.getJSONArray("data");
-                            JSONObject headers = response.getJSONObject("headers");
-                                textView.append(headers.toString() + "\n\n");
-                        } catch (JSONException e){
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                    }
-                })
+                JsonRequest request = new JsonRequest(Request.Method.POST, url, postDataFinal,
+                        new Response.Listener<JSONObject>()
+                        {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try{
+                                    JSONArray data = response.getJSONArray("data");
+                                    JSONObject headers = response.getJSONObject("headers");
+                                        textView.append(headers.get("apim-request-id").toString() + "\n\n");
+                                } catch (JSONException e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                error.printStackTrace();
+                            }
+                        }, headers,
+                        requestBody
 
-                {
-                    /** Passing some request headers* */
-                    @Override
-                    public Map getHeaders() throws AuthFailureError {
-                        HashMap headers = new HashMap();
-                        headers.put("Content-Type", "application/json");
-                        headers.put("Ocp-Apim-Subscription-Key", "f2b2a6bf17ff4e119dbdcda4a4ae3d94");
-                        return headers;
-                    }
-
-                    @Override
-                    public byte[] getBody() {
-                        JSONObject jsonBodyObj = new JSONObject();
-                        String requestBody = null;
-
-                        try {
-                            jsonBodyObj.put("url", "https://media-cdn.tripadvisor.com/media/photo-s/0e/4c/61/59/receipt-in-ec-approximatey.jpg");
-
-                            requestBody = jsonBodyObj.toString();
-                        } catch (JSONException e) {
-                            VolleyLog.wtf(e.getMessage(), "utf-8");
-                            return null;
-                        }
-
-                        try{
-                            return requestBody.getBytes("utf-8");
-                        }catch(UnsupportedEncodingException e){
-                            e.printStackTrace();
-                        }
-                        return null;
-                    }
-
-                };
-                    queue.add(request);
+                );
+                queue.add(request);
             }
         });
-
-
     }
 }
 
