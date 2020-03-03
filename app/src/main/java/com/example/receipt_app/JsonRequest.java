@@ -20,10 +20,10 @@ public class JsonRequest extends JsonObjectRequest {
     private final JSONObject jsonBodyObj;
 
     public JsonRequest(int method, String url, JSONObject jsonRequest, Response.Listener
-            <JSONObject> listener, Response.ErrorListener errorListener, Map<String, String> headers, JSONObject jsonBodyObj) {
+            <JSONObject> listener, Response.ErrorListener errorListener, Map<String, String> headers) {
         super(method, url, jsonRequest, listener, errorListener);
         this.headers = headers;
-        this.jsonBodyObj = jsonBodyObj;
+        this.jsonBodyObj = jsonRequest;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.example.receipt_app;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -30,6 +31,7 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
     private final static String RECEIPT_SEND_REQUEST_URL = "https://receiptrecognize.cognitiveservices.azure.com/formrecognizer/v2.0-preview/prebuilt/receipt/analyze";
+    private final static String RECEIPT_RECEIVE_REQUEST_URL = "https://receiptrecognize.cognitiveservices.azure.com/formrecognizer/v2.0-preview/prebuilt/receipt/analyzeResults/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,17 +67,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Instantiate the RequestQueue.
         final RequestQueue queue = Volley.newRequestQueue(this);
-        JSONObject postData = new JSONObject();
-        try{
-            postData.put("url", "https://media-cdn.tripadvisor.com/media/photo-s/0e/4c/61/59/receipt-in-ec-approximatey.jpg");
-        }catch (Exception e){
-            // todo
-        }
-        final JSONObject postDataFinal = postData;
+
 
         buttonParse.setOnClickListener(new View.OnClickListener() {
+            String operationID;
+
             @Override
             public void onClick(View v) {
+
                 String url = RECEIPT_SEND_REQUEST_URL;
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("Content-Type", "application/json");
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                   e.printStackTrace();
                 }
 
-                JsonRequest request = new JsonRequest(Request.Method.POST, url, postDataFinal,
+                JsonRequest request = new JsonRequest(Request.Method.POST, url, requestBody,
                         new Response.Listener<JSONObject>()
                         {
                             @Override
@@ -95,7 +94,41 @@ public class MainActivity extends AppCompatActivity {
                                 try{
                                     JSONArray data = response.getJSONArray("data");
                                     JSONObject headers = response.getJSONObject("headers");
-                                        textView.append(headers.get("apim-request-id").toString() + "\n\n");
+                                    operationID = headers.get("apim-request-id").toString();
+
+
+                                    String urlGet = RECEIPT_RECEIVE_REQUEST_URL + operationID;
+                                    HashMap<String, String> headersGet = new HashMap<>();
+                                    headersGet.put("Ocp-Apim-Subscription-Key", "f2b2a6bf17ff4e119dbdcda4a4ae3d94");
+
+                                    JsonRequest requestGet = new JsonRequest(Request.Method.GET, urlGet, null,
+                                            new Response.Listener<JSONObject>()
+                                            {
+                                                @Override
+                                                public void onResponse(JSONObject response) {
+                                                    try{
+                                                        JSONArray data = response.getJSONArray("data");
+                                                        JSONObject headers = response.getJSONObject("headers");
+                                                        textView.append(data.get(0).toString());
+                                                    } catch (JSONException e){
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            },
+                                            new Response.ErrorListener() {
+                                                @Override
+                                                public void onErrorResponse(VolleyError error) {
+                                                    error.printStackTrace();
+                                                }
+                                            }, headersGet
+                                    );
+                                    queue.add(requestGet);
+
+
+
+
+
+
                                 } catch (JSONException e){
                                     e.printStackTrace();
                                 }
@@ -106,9 +139,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onErrorResponse(VolleyError error) {
                                 error.printStackTrace();
                             }
-                        }, headers,
-                        requestBody
-
+                        }, headers
                 );
                 queue.add(request);
             }
