@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final static String RECEIPT_SEND_REQUEST_URL = "https://receiptrecognize.cognitiveservices.azure.com/formrecognizer/v2.0-preview/prebuilt/receipt/analyze";
     private final static String RECEIPT_RECEIVE_REQUEST_URL = "https://receiptrecognize.cognitiveservices.azure.com/formrecognizer/v2.0-preview/prebuilt/receipt/analyzeResults/";
+    private String result = "test";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Instantiate the RequestQueue.
         final RequestQueue queue = Volley.newRequestQueue(this);
+
+        // local class
+
 
 
         buttonParse.setOnClickListener(new View.OnClickListener() {
@@ -108,8 +112,11 @@ public class MainActivity extends AppCompatActivity {
                                                     try{
                                                         JSONObject data = response.getJSONObject("data");
                                                         JSONObject headers = response.getJSONObject("headers");
-                                                        textView.append(data.get("status").toString());
-                                                    } catch (JSONException e){
+                                                        getReceiptData(operationID, queue);
+
+
+                                                        textView.append(result);
+                                                    } catch (Exception e){
                                                         e.printStackTrace();
                                                     }
                                                 }
@@ -122,9 +129,6 @@ public class MainActivity extends AppCompatActivity {
                                             }, headersGet
                                     );
                                     queue.add(requestGet);
-
-
-
 
 
 
@@ -143,6 +147,47 @@ public class MainActivity extends AppCompatActivity {
                 queue.add(request);
             }
         });
+    }
+
+    void getReceiptData(String id, RequestQueue queue){
+
+        final RequestQueue queuer = queue;
+        final String operationID = id;
+        String urlGet = RECEIPT_RECEIVE_REQUEST_URL + operationID;
+        HashMap<String, String> headersGet = new HashMap<>();
+        headersGet.put("Ocp-Apim-Subscription-Key", "f2b2a6bf17ff4e119dbdcda4a4ae3d94");
+
+        // onSuccess, call second request
+        JsonRequest requestGet = new JsonRequest(Request.Method.GET, urlGet, null,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try{
+                            JSONObject data = response.getJSONObject("data");
+                            String status = data.get("status").toString();
+                            System.out.println(status);
+                            if(!status.equals("succeeded")){
+                                Thread.sleep(2000);
+                                getReceiptData(operationID, queuer);
+                            }else{
+
+                                result = status;
+
+                            }
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }, headersGet
+        );
+        queuer.add(requestGet);
     }
 }
 
