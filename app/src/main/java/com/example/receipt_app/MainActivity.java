@@ -92,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(JSONObject response) {
                                 try{
-                                    JSONArray data = response.getJSONArray("data");
                                     JSONObject headers = response.getJSONObject("headers");
                                     operationID = headers.get("apim-request-id").toString();
 
@@ -107,9 +106,9 @@ public class MainActivity extends AppCompatActivity {
                                                 @Override
                                                 public void onResponse(JSONObject response) {
                                                     try{
-                                                        JSONArray data = response.getJSONArray("data");
+                                                        JSONObject data = response.getJSONObject("data");
                                                         JSONObject headers = response.getJSONObject("headers");
-                                                        textView.append(data.get(0).toString());
+                                                        textView.append(data.get("status").toString());
                                                     } catch (JSONException e){
                                                         e.printStackTrace();
                                                     }
