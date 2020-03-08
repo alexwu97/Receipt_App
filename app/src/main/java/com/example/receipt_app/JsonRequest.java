@@ -17,13 +17,13 @@ import java.util.Map;
 
 public class JsonRequest extends JsonObjectRequest {
     private final Map<String, String> headers;
-    // private final JSONObject jsonBodyObj;
+    private final JSONObject jsonBodyObj;
 
     public JsonRequest(int method, String url, JSONObject jsonRequest, Response.Listener
             <JSONObject> listener, Response.ErrorListener errorListener, Map<String, String> headers) {
         super(method, url, jsonRequest, listener, errorListener);
         this.headers = headers;
-        // this.jsonBodyObj = jsonRequest;
+        this.jsonBodyObj = jsonRequest;
     }
 
     @Override
@@ -50,14 +50,14 @@ public class JsonRequest extends JsonObjectRequest {
         return headers != null ? headers : super.getHeaders();
     }
 
-//    @Override
-//    public byte[] getBody() {
-//        String requestBody = jsonBodyObj.toString();
-//        try{
-//            return requestBody.getBytes("utf-8");
-//        }catch(UnsupportedEncodingException e){
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
+    @Override
+    public byte[] getBody() {
+        String requestBody = jsonBodyObj.toString();
+        try{
+            return requestBody.getBytes("utf-8");
+        }catch(UnsupportedEncodingException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
