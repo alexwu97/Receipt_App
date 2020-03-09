@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -36,16 +35,12 @@ public class SecondActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
 
+        if (getIntent().hasExtra("com.example.receipt_app.PICTURE")){
 
-
-        if (getIntent().hasExtra("com.example.receipt_app.SOMETHING")){
-
-            //TextView tv = (TextView) findViewById(R.id.textView);
-            String text = getIntent().getExtras().getString("com.example.receipt_app.SOMETHING");
-            //tv.setText(text);
+            String text = getIntent().getExtras().getString("com.example.receipt_app.PICTURE");
             Uri texts = Uri.parse(text);
             System.out.println(text);
-            imageView = (ImageView) findViewById(R.id.imageView5);
+            imageView = (ImageView) findViewById(R.id.selectedReceipt);
             imageView.setImageURI(texts);
             imageView.invalidate();
             BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();

@@ -7,9 +7,10 @@
     tools:context=".SecondActivity">
 
     <ImageView
-        android:id="@+id/imageView5"
+        android:id="@+id/selectedReceipt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:drawingCacheQuality="high"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,7 +27,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.7"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView5" />
+        app:layout_constraintTop_toBottomOf="@+id/selectedReceipt" />
 
     <Button
         android:id="@+id/backBtn"
@@ -37,6 +38,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.3"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView5" />
+        app:layout_constraintTop_toBottomOf="@+id/selectedReceipt" />
 
 </android.support.constraint.ConstraintLayout>
