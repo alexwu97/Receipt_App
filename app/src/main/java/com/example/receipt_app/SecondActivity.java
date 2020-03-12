@@ -68,15 +68,8 @@ public class SecondActivity extends AppCompatActivity {
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("Content-Type", "image/jpeg");
                 headers.put("Ocp-Apim-Subscription-Key", SUB_KEY);
-                JSONObject requestBody = new JSONObject();
-                try{
-                    requestBody.put("url", "byteArray");
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
 
-
-                JsonRequest request = new JsonRequest(Request.Method.POST, url, requestBody,
+                ByteArrRequest request = new ByteArrRequest(Request.Method.POST, url, null,
                         new Response.Listener<JSONObject>()
                         {
                             @Override
@@ -111,21 +104,16 @@ public class SecondActivity extends AppCompatActivity {
                                             }, headersGet
                                     );
                                     queue.add(requestGet);
-
-
-
                                 } catch (JSONException e){
                                     e.printStackTrace();
                                 }
                             }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                error.printStackTrace();
-                            }
-                        }, headers
-                );
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }, headers, byteArray);
                 queue.add(request);
             }
         });
