@@ -15,11 +15,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class SecondActivity extends AppCompatActivity {
 
@@ -78,32 +80,8 @@ public class SecondActivity extends AppCompatActivity {
                                     JSONObject headers = response.getJSONObject("headers");
                                     operationID = headers.get("apim-request-id").toString();
 
-                                    String urlGet = RECEIPT_RECEIVE_REQUEST_URL + operationID;
-                                    HashMap<String, String> headersGet = new HashMap<>();
-                                    headersGet.put("Ocp-Apim-Subscription-Key", SUB_KEY);
+                                    getReceiptData(operationID, queue);
 
-                                    JsonRequest requestGet = new JsonRequest(Request.Method.GET, urlGet, null,
-                                            new Response.Listener<JSONObject>()
-                                            {
-                                                @Override
-                                                public void onResponse(JSONObject response) {
-                                                    try{
-                                                        JSONObject data = response.getJSONObject("data");
-                                                        JSONObject headers = response.getJSONObject("headers");
-                                                        getReceiptData(operationID, queue);
-                                                    } catch (Exception e){
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            },
-                                            new Response.ErrorListener() {
-                                                @Override
-                                                public void onErrorResponse(VolleyError error) {
-                                                    error.printStackTrace();
-                                                }
-                                            }, headersGet
-                                    );
-                                    queue.add(requestGet);
                                 } catch (JSONException e){
                                     e.printStackTrace();
                                 }
@@ -138,12 +116,15 @@ public class SecondActivity extends AppCompatActivity {
                             String status = data.get("status").toString();
                             System.out.println(status);
                             if(!status.equals("succeeded")){
-                                Thread.sleep(2000);
+                                Thread.sleep(15000);
                                 getReceiptData(operationID, queuer);
                             }else{
 
                                 result = data;
-                                System.out.println(result);
+                                boolean r = keyExists(result, "Total");
+                                System.out.println(r);
+
+
 
                             }
                         } catch (Exception e){
@@ -159,5 +140,37 @@ public class SecondActivity extends AppCompatActivity {
                 }, headersGet
         );
         queuer.add(requestGet);
+    }
+
+    public boolean keyExists(JSONObject object, String searchedKey) {
+        boolean exists = object.has(searchedKey);
+        if(exists) {
+            try{
+                System.out.print(object.get(searchedKey).toString());
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        if(!exists) {
+            Iterator<?> keys = object.keys();
+            while( keys.hasNext() ) {
+                String key = (String)keys.next();
+                try{
+                    if ( object.get(key) instanceof JSONObject ) {
+                        exists = keyExists((JSONObject) object.get(key), searchedKey);
+                    }else if ( object.get(key) instanceof JSONArray){
+                        JSONArray obj = (JSONArray) object.get(key);
+                        for(int i = 0; i < obj.length(); i++){
+                            if (obj.get(i) instanceof JSONObject){
+                                exists = keyExists((JSONObject) obj.get(i), searchedKey);
+                            }
+                        }
+                    }
+                }catch(Exception e ){
+                    e.printStackTrace();
+                }
+            }
+        }
+        return exists;
     }
 }
