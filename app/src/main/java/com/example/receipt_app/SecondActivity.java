@@ -1,5 +1,8 @@
 package com.example.receipt_app;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -8,6 +11,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -19,7 +23,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -31,6 +40,8 @@ public class SecondActivity extends AppCompatActivity {
     private JSONObject result = null;
     byte[] byteArray = {};
     private ImageView imageView;
+
+    private final String filenameInternal = "receiptLogs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,15 +127,16 @@ public class SecondActivity extends AppCompatActivity {
                             String status = data.get("status").toString();
                             System.out.println(status);
                             if(!status.equals("succeeded")){
-                                Thread.sleep(15000);
+                                Thread.sleep(8000);
                                 getReceiptData(operationID, queuer);
                             }else{
 
                                 result = data;
-                                boolean r = keyExists(result, "Total");
-                                System.out.println(r);
+                                keyExists(result, "Total");
+                                createUpdateFile(filenameInternal, result.toString(), false);
 
-
+                                Intent gotoLogDisplay = new Intent(getApplicationContext(), LogDisplay.class);
+                                startActivity(gotoLogDisplay);
 
                             }
                         } catch (Exception e){
@@ -142,11 +154,11 @@ public class SecondActivity extends AppCompatActivity {
         queuer.add(requestGet);
     }
 
-    public boolean keyExists(JSONObject object, String searchedKey) {
+    public void keyExists(JSONObject object, String searchedKey) {
         boolean exists = object.has(searchedKey);
         if(exists) {
             try{
-                System.out.print(object.get(searchedKey).toString());
+                System.out.println(object.get(searchedKey).toString());
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -157,12 +169,12 @@ public class SecondActivity extends AppCompatActivity {
                 String key = (String)keys.next();
                 try{
                     if ( object.get(key) instanceof JSONObject ) {
-                        exists = keyExists((JSONObject) object.get(key), searchedKey);
+                         keyExists((JSONObject) object.get(key), searchedKey);
                     }else if ( object.get(key) instanceof JSONArray){
                         JSONArray obj = (JSONArray) object.get(key);
                         for(int i = 0; i < obj.length(); i++){
                             if (obj.get(i) instanceof JSONObject){
-                                exists = keyExists((JSONObject) obj.get(i), searchedKey);
+                                 keyExists((JSONObject) obj.get(i), searchedKey);
                             }
                         }
                     }
@@ -171,6 +183,22 @@ public class SecondActivity extends AppCompatActivity {
                 }
             }
         }
-        return exists;
+    }
+
+    private void createUpdateFile(String fileName, String content, boolean update) {
+        FileOutputStream outputStream;
+
+        try {
+            if (update) {
+                outputStream = openFileOutput(fileName, Context.MODE_APPEND);
+            } else {
+                outputStream = openFileOutput(fileName, Context.MODE_PRIVATE);
+            }
+            outputStream.write(content.getBytes());
+            outputStream.flush();
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
