@@ -1,4 +1,4 @@
-package com.example.receipt_app;
+package com.example.receipt_app.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.example.receipt_app.R;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;

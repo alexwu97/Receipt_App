@@ -1,11 +1,13 @@
-package com.example.receipt_app;
+package com.example.receipt_app.database;
 
 import android.content.Context;
 
-import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+
+import com.example.receipt_app.model.ReceiptLogger;
+import com.example.receipt_app.model.ReceiptLoggerDao;
 
 @Database(entities = {ReceiptLogger.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {

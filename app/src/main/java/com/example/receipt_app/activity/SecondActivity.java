@@ -1,4 +1,4 @@
-package com.example.receipt_app;
+package com.example.receipt_app.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.room.Room;
 
 import android.os.Bundle;
 import android.view.View;
@@ -18,6 +17,12 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.example.receipt_app.R;
+import com.example.receipt_app.database.AppDatabase;
+import com.example.receipt_app.model.ReceiptLogger;
+import com.example.receipt_app.request_model.ByteArrRequest;
+import com.example.receipt_app.request_model.JsonRequest;
+import com.example.receipt_app.view.LogDisplay;
 
 import org.json.JSONArray;
 import org.json.JSONException;

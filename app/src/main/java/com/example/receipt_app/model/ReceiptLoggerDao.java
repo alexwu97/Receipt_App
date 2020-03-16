@@ -1,4 +1,4 @@
-package com.example.receipt_app;
+package com.example.receipt_app.model;
 
 import java.util.List;
 

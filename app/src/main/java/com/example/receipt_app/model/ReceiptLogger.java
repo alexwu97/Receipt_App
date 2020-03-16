@@ -1,4 +1,4 @@
-package com.example.receipt_app;
+package com.example.receipt_app.model;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
