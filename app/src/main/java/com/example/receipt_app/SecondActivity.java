@@ -2,16 +2,16 @@ package com.example.receipt_app;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Room;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -23,12 +23,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -42,6 +38,8 @@ public class SecondActivity extends AppCompatActivity {
     private ImageView imageView;
 
     private final String filenameInternal = "receiptLogs";
+
+    private String total = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,7 +131,18 @@ public class SecondActivity extends AppCompatActivity {
 
                                 result = data;
                                 keyExists(result, "Total");
+                                System.out.println(total);
                                 createUpdateFile(filenameInternal, result.toString(), false);
+
+                                AppDatabase db = AppDatabase.getInstance(getApplicationContext());
+
+                                ReceiptLogger receipt = new ReceiptLogger();
+                                receipt.setName("Hello");
+                                receipt.setTotal(total);
+
+                                db.receiptLoggerDao().insert(receipt);
+
+
 
                                 Intent gotoLogDisplay = new Intent(getApplicationContext(), LogDisplay.class);
                                 startActivity(gotoLogDisplay);
@@ -158,7 +167,8 @@ public class SecondActivity extends AppCompatActivity {
         boolean exists = object.has(searchedKey);
         if(exists) {
             try{
-                System.out.println(object.get(searchedKey).toString());
+                JSONObject r = (JSONObject) object.get(searchedKey);
+               total = r.get("valueNumber").toString();
             }catch(Exception e){
                 e.printStackTrace();
             }
