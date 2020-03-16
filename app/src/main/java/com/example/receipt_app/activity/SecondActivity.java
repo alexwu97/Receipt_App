@@ -19,6 +19,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.example.receipt_app.R;
 import com.example.receipt_app.database.AppDatabase;
+import com.example.receipt_app.database.AppExecutors;
 import com.example.receipt_app.model.ReceiptLogger;
 import com.example.receipt_app.request_model.ByteArrRequest;
 import com.example.receipt_app.request_model.JsonRequest;
@@ -41,6 +42,7 @@ public class SecondActivity extends AppCompatActivity {
     private JSONObject result = null;
     byte[] byteArray = {};
     private ImageView imageView;
+    private AppDatabase db;
 
     private final String filenameInternal = "receiptLogs";
 
@@ -137,17 +139,8 @@ public class SecondActivity extends AppCompatActivity {
                                 result = data;
                                 keyExists(result, "Total");
                                 System.out.println(total);
-                                createUpdateFile(filenameInternal, result.toString(), false);
-
-                                AppDatabase db = AppDatabase.getInstance(getApplicationContext());
-
-                                ReceiptLogger receipt = new ReceiptLogger();
-                                receipt.setName("Hello");
-                                receipt.setTotal(total);
-
-                                db.receiptLoggerDao().insert(receipt);
-
-
+                                // createUpdateFile(filenameInternal, result.toString(), false);
+                                saveReceiptDataToDB();
 
                                 Intent gotoLogDisplay = new Intent(getApplicationContext(), LogDisplay.class);
                                 startActivity(gotoLogDisplay);
@@ -166,6 +159,20 @@ public class SecondActivity extends AppCompatActivity {
                 }, headersGet
         );
         queuer.add(requestGet);
+    }
+
+    private void saveReceiptDataToDB(){
+        db = AppDatabase.getInstance(getApplicationContext());
+
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                ReceiptLogger receipt = new ReceiptLogger();
+                receipt.setName("Hello");
+                receipt.setTotal(total);
+                db.receiptLoggerDao().insert(receipt);
+            }
+        });
     }
 
     public void keyExists(JSONObject object, String searchedKey) {
