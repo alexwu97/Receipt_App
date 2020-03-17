@@ -3,10 +3,13 @@ package com.example.receipt_app.view;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.receipt_app.CustomListAdapter;
 import com.example.receipt_app.R;
 import com.example.receipt_app.database.AppDatabase;
 import com.example.receipt_app.database.AppExecutors;
@@ -16,13 +19,15 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 public class LogDisplay extends AppCompatActivity {
 
     private final String filenameInternal = "receiptLogs";
-    private TextView tv;
     private AppDatabase db;
-    ArrayList<ReceiptLogger> receiptArr= new ArrayList<>();
+    private CustomListAdapter adapter;
+    private ListView listView;
+    List<ReceiptLogger> receiptArr= new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,20 +35,20 @@ public class LogDisplay extends AppCompatActivity {
         setContentView(R.layout.activity_log_display);
 
         getReceiptDataToDB();
+        listView = findViewById(R.id.list);
+        adapter = new CustomListAdapter(this, receiptArr);
+        listView.setAdapter(adapter);
 
-        tv= (TextView) findViewById(R.id.tv);
+        //getReceiptDataToDB();
 
-        Button readFileBtn = (Button) findViewById(R.id.readFileBtn);
+        //Button readFileBtn = (Button) findViewById(R.id.readFileBtn);
 
-        readFileBtn.setOnClickListener(new View.OnClickListener() {
+        /*readFileBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getReceiptDataToDB();
-                for (ReceiptLogger i : receiptArr){
-                    tv.append(i.getMerchantName() + "\n");
-                }
+
             }
-        });
+        });*/
 
 
     }
@@ -55,12 +60,15 @@ public class LogDisplay extends AppCompatActivity {
             @Override
             public void run() {
                 receiptArr = (ArrayList<ReceiptLogger>) db.receiptLoggerDao().getAll();
-
+                System.out.println(receiptArr);
+                // notifying list adapter about data changes
+                // so that it renders the list view with updated data
+                adapter.notifyDataSetChanged();
             }
         });
     }
 
-    public void readFileInternalStorage(View view) {
+    /*public void readFileInternalStorage(View view) {
         try {
             FileInputStream fileInputStream = openFileInput(filenameInternal);
             BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
@@ -76,5 +84,5 @@ public class LogDisplay extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }
