@@ -9,11 +9,11 @@ public class ReceiptLogger {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    @ColumnInfo(name = "Name")
-    private String name;
+    @ColumnInfo(name = "merchantName")
+    private String merchantName;
 
     @ColumnInfo(name = "Total")
-    private String total;
+    private double total;
 
     public int getId() {
         return id;
@@ -23,19 +23,19 @@ public class ReceiptLogger {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getMerchantName() {
+        return merchantName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMerchantName(String merchantName) {
+        this.merchantName = merchantName;
     }
 
-    public String getTotal() {
+    public double getTotal() {
         return total;
     }
 
-    public void setTotal(String total) {
+    public void setTotal(double total) {
         this.total = total;
     }
 }

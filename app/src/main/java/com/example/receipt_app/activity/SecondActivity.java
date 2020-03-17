@@ -17,6 +17,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.example.receipt_app.JsonSearcher;
 import com.example.receipt_app.R;
 import com.example.receipt_app.database.AppDatabase;
 import com.example.receipt_app.database.AppExecutors;
@@ -46,7 +47,8 @@ public class SecondActivity extends AppCompatActivity {
 
     private final String filenameInternal = "receiptLogs";
 
-    private String total = "";
+    private double total = 0.0;
+    private String merchantName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,8 +139,10 @@ public class SecondActivity extends AppCompatActivity {
                             }else{
 
                                 result = data;
-                                keyExists(result, "Total");
+                                total = JsonSearcher.getReceiptNumber(result, "Total");
+                                merchantName = JsonSearcher.getReceiptString(result, "MerchantName");
                                 System.out.println(total);
+                                System.out.println(merchantName);
                                 // createUpdateFile(filenameInternal, result.toString(), false);
                                 saveReceiptDataToDB();
 
@@ -168,43 +172,11 @@ public class SecondActivity extends AppCompatActivity {
             @Override
             public void run() {
                 ReceiptLogger receipt = new ReceiptLogger();
-                receipt.setName("Hello");
+                receipt.setMerchantName(merchantName);
                 receipt.setTotal(total);
                 db.receiptLoggerDao().insert(receipt);
             }
         });
-    }
-
-    public void keyExists(JSONObject object, String searchedKey) {
-        boolean exists = object.has(searchedKey);
-        if(exists) {
-            try{
-                JSONObject r = (JSONObject) object.get(searchedKey);
-               total = r.get("valueNumber").toString();
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-        if(!exists) {
-            Iterator<?> keys = object.keys();
-            while( keys.hasNext() ) {
-                String key = (String)keys.next();
-                try{
-                    if ( object.get(key) instanceof JSONObject ) {
-                         keyExists((JSONObject) object.get(key), searchedKey);
-                    }else if ( object.get(key) instanceof JSONArray){
-                        JSONArray obj = (JSONArray) object.get(key);
-                        for(int i = 0; i < obj.length(); i++){
-                            if (obj.get(i) instanceof JSONObject){
-                                 keyExists((JSONObject) obj.get(i), searchedKey);
-                            }
-                        }
-                    }
-                }catch(Exception e ){
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     private void createUpdateFile(String fileName, String content, boolean update) {

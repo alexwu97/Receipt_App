@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import com.example.receipt_app.model.ReceiptLogger;
 import com.example.receipt_app.model.ReceiptLoggerDao;
 
-@Database(entities = {ReceiptLogger.class}, version = 1)
+@Database(entities = {ReceiptLogger.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract ReceiptLoggerDao receiptLoggerDao();
     private static final String DB_NAME = "ReceiptLogger_db";
