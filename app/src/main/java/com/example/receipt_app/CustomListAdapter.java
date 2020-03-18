@@ -2,6 +2,7 @@ package com.example.receipt_app;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,21 +49,38 @@ public class CustomListAdapter extends BaseAdapter {
 
         TextView title = (TextView) convertView.findViewById(R.id.title);
         TextView rating = (TextView) convertView.findViewById(R.id.rating);
-        TextView year = (TextView) convertView.findViewById(R.id.releaseYear);
 
         // getting movie data for the row
         ReceiptLogger logger = loggers.get(position);
 
         // title
-        title.setText("title");
+        title.setText(logger.getMerchantName());
 
         // rating
-        rating.setText("rating");
+        rating.setText("$" + logger.getTotal());
 
-        // release year
-        year.setText("year");
+        convertView.setOnClickListener(new imageViewClickListener(position));
+
 
         return convertView;
+    }
+
+    class imageViewClickListener implements View.OnClickListener {
+        int position;
+
+        public imageViewClickListener(int pos) {
+            this.position = pos;
+        }
+
+        public void onClick(View v) {
+            {
+                ReceiptLogger logger = loggers.get(position);
+                Intent startIntent = new Intent(activity.getApplicationContext(), ReceiptDetail.class);
+                startIntent.putExtra("com.example.receipt_app.RECEIPT", logger);
+                activity.startActivity(startIntent);
+
+            }
+        }
     }
 
 }

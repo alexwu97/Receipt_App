@@ -80,11 +80,13 @@ public class SecondActivity extends AppCompatActivity {
 
         buttonParse.setOnClickListener(new View.OnClickListener() {
 
-            String operationID;
+            String operationID = "15128ce3-a62e-4db5-a5a3-df42a0fe859a";
             @Override
             public void onClick(View v) {
 
-                String url = RECEIPT_SEND_REQUEST_URL;
+                getReceiptData(operationID, queue);
+
+                /*String url = RECEIPT_SEND_REQUEST_URL;
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("Content-Type", "image/jpeg");
                 headers.put("Ocp-Apim-Subscription-Key", SUB_KEY);
@@ -97,6 +99,7 @@ public class SecondActivity extends AppCompatActivity {
                                 try{
                                     JSONObject headers = response.getJSONObject("headers");
                                     operationID = headers.get("apim-request-id").toString();
+                                    System.out.println(operationID);
 
                                     getReceiptData(operationID, queue);
 
@@ -110,7 +113,7 @@ public class SecondActivity extends AppCompatActivity {
                         error.printStackTrace();
                     }
                 }, headers, byteArray);
-                queue.add(request);
+                queue.add(request);*/
             }
         });
     }
@@ -175,6 +178,7 @@ public class SecondActivity extends AppCompatActivity {
                 receipt.setMerchantName(merchantName);
                 receipt.setTotal(total);
                 db.receiptLoggerDao().insert(receipt);
+                //db.receiptLoggerDao().deleteAll();
             }
         });
     }

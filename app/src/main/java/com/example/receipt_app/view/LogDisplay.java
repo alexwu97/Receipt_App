@@ -2,7 +2,10 @@ package com.example.receipt_app.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -35,9 +38,24 @@ public class LogDisplay extends AppCompatActivity {
         setContentView(R.layout.activity_log_display);
 
         getReceiptDataToDB();
+        try{
+            Thread.sleep(8000);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
         listView = findViewById(R.id.list);
         adapter = new CustomListAdapter(this, receiptArr);
         listView.setAdapter(adapter);
+
+        TextView grandTotal = (TextView) findViewById(R.id.totalText);
+        Double sum = 0.0;
+        for (ReceiptLogger i : receiptArr){
+            sum += i.getTotal();
+        }
+
+        grandTotal.setText("$" + sum);
+
 
         //getReceiptDataToDB();
 
@@ -54,6 +72,8 @@ public class LogDisplay extends AppCompatActivity {
     }
 
     private void getReceiptDataToDB(){
+
+
         db = AppDatabase.getInstance(getApplicationContext());
 
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
@@ -63,7 +83,7 @@ public class LogDisplay extends AppCompatActivity {
                 System.out.println(receiptArr);
                 // notifying list adapter about data changes
                 // so that it renders the list view with updated data
-                adapter.notifyDataSetChanged();
+                //adapter.notifyDataSetChanged();
             }
         });
     }

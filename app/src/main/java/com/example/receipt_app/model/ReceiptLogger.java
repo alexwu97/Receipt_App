@@ -4,8 +4,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "receipt")
-public class ReceiptLogger {
+public class ReceiptLogger implements Serializable {
     @PrimaryKey(autoGenerate = true)
     private int id;
 

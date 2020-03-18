@@ -13,13 +13,16 @@ public interface ReceiptLoggerDao {
     @Query("SELECT * from receipt")
     List<ReceiptLogger> getAll();
 
+    @Query("DELETE FROM receipt")
+    void deleteAll();
+
     @Insert
     void insert(ReceiptLogger receipt);
 
     @Update
     void update(ReceiptLogger receipt);
 
-    @Delete
+    @Delete()
     void delete(ReceiptLogger receipt);
 
 }

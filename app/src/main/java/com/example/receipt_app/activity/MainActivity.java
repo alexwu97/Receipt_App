@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 
 import com.example.receipt_app.R;
+import com.example.receipt_app.view.LogDisplay;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int GALLERY_REQUEST_CODE = 100;
     private static final int CAMERA_REQUEST_CODE = 200;
-    ImageView imageView;
     String currentPhotoPath;
     private static Uri photoURI;
 
@@ -36,10 +36,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        imageView = (ImageView) findViewById(R.id.imageView);
-
-        Button pictureBtn = (Button) findViewById(R.id.pictureBtn);
-        pictureBtn.setOnClickListener(new View.OnClickListener() {
+        Button galleryBtn = (Button) findViewById(R.id.galleryBtn);
+        galleryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pickFromGallery();
@@ -54,33 +52,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button secondActivityBtn = (Button) findViewById(R.id.secondActivityBtn);
-        secondActivityBtn.setOnClickListener(new View.OnClickListener() {
+        Button receiptLogBtn = (Button) findViewById(R.id.receiptLogBtn);
+        receiptLogBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent startIntent = new Intent(getApplicationContext(), SecondActivity.class);
-                //startIntent.putExtra("com.example.receipt_app.SOMETHING", "HELLO WORLD!");
+                Intent startIntent = new Intent(getApplicationContext(), LogDisplay.class);
                 startActivity(startIntent);
             }
         });
-
-        Button googleBtn = (Button) findViewById(R.id.googleBtn);
-        googleBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String google = "http://old.reddit.com/r/leagueoflegends";
-                Uri webaddress = Uri.parse(google);
-
-                Intent gotoGoogle = new Intent(Intent.ACTION_VIEW, webaddress);
-                if (gotoGoogle.resolveActivity(getPackageManager()) != null) {
-                    startActivity(gotoGoogle);
-                }
-            }
-        });
-
-        final TextView textView = (TextView) findViewById(R.id.text);
-
-
     }
 
     private void pickFromGallery(){
