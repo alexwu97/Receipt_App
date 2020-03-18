@@ -15,7 +15,7 @@ public class JsonSearcher {
         if(exists) {
             try{
                 JSONObject r = (JSONObject) object.get(searchedKey);
-                value = r.get("valueString").toString();
+                value = r.get("text").toString();
 
             }catch(Exception e){
                 e.printStackTrace();
@@ -51,7 +51,7 @@ public class JsonSearcher {
         if(exists) {
             try{
                 JSONObject r = (JSONObject) object.get(searchedKey);
-                value = Double.parseDouble(r.get("valueNumber").toString());
+                value = Double.parseDouble(r.get("text").toString().substring(1)); //eliminate the "$" sign
 
             }catch(Exception e){
                 e.printStackTrace();
@@ -81,15 +81,23 @@ public class JsonSearcher {
         return value;
     }
 
-    /*public static HashMap<String, Double> getReceiptItems(JSONObject object, String searchedKey) {
-        HashMap<String, Double> value;
+    public static ArrayList<Item> getReceiptItems(JSONObject object, String searchedKey) {
+        ArrayList<Item> value = new ArrayList<>();
         boolean exists = object.has(searchedKey);
         if(exists) {
             try{
                 JSONObject r = (JSONObject) object.get(searchedKey);
-
-
-                value = Double.parseDouble(r.get("valueNumber").toString());
+                JSONArray arr = (JSONArray) r.get("valueArray");
+                for (int i = 0; i < arr.length(); i++){
+                    JSONObject objInsideArr = (JSONObject) arr.get(i);
+                    JSONObject valueObject = (JSONObject) objInsideArr.get("valueObject");
+                    JSONObject name = (JSONObject) valueObject.get("Name");
+                    JSONObject price = (JSONObject) valueObject.get("TotalPrice");
+                    String itemName = name.get("valueString").toString();
+                    double itemPrice = cleanCost(price.get("text").toString().substring(1)); //eliminate "$" sign
+                    Item item = new Item(itemName, itemPrice);
+                    value.add(item);
+                }
 
             }catch(Exception e){
                 e.printStackTrace();
@@ -101,12 +109,12 @@ public class JsonSearcher {
                 String key = (String)keys.next();
                 try{
                     if ( object.get(key) instanceof JSONObject ) {
-                        value = getReceiptNumber((JSONObject) object.get(key), searchedKey);
+                        value = getReceiptItems((JSONObject) object.get(key), searchedKey);
                     }else if ( object.get(key) instanceof JSONArray){
                         JSONArray obj = (JSONArray) object.get(key);
                         for(int i = 0; i < obj.length(); i++){
                             if (obj.get(i) instanceof JSONObject){
-                                value = getReceiptNumber((JSONObject) obj.get(i), searchedKey);
+                                value = getReceiptItems((JSONObject) obj.get(i), searchedKey);
                             }
                         }
                     }
@@ -117,7 +125,13 @@ public class JsonSearcher {
         }
 
         return value;
-    }*/
+    }
+
+    public static double cleanCost(String price){
+        price = price.replace("," , ".");
+        return Double.parseDouble(price);
+
+    }
 
 
 }

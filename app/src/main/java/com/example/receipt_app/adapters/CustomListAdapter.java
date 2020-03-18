@@ -1,4 +1,4 @@
-package com.example.receipt_app;
+package com.example.receipt_app.adapters;
 
 import android.app.Activity;
 import android.content.Context;
@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.example.receipt_app.R;
 import com.example.receipt_app.model.ReceiptLogger;
+import com.example.receipt_app.view.ReceiptDetail;
 
 import java.util.List;
 

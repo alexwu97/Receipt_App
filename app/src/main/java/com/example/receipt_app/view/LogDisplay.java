@@ -2,25 +2,16 @@ package com.example.receipt_app.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.view.Menu;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.receipt_app.CustomListAdapter;
+import com.example.receipt_app.adapters.CustomListAdapter;
 import com.example.receipt_app.R;
 import com.example.receipt_app.database.AppDatabase;
 import com.example.receipt_app.database.AppExecutors;
 import com.example.receipt_app.model.ReceiptLogger;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +30,7 @@ public class LogDisplay extends AppCompatActivity {
 
         getReceiptDataToDB();
         try{
-            Thread.sleep(8000);
+            Thread.sleep(100);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -49,7 +40,7 @@ public class LogDisplay extends AppCompatActivity {
         listView.setAdapter(adapter);
 
         TextView grandTotal = (TextView) findViewById(R.id.totalText);
-        Double sum = 0.0;
+        double sum = 0.0;
         for (ReceiptLogger i : receiptArr){
             sum += i.getTotal();
         }

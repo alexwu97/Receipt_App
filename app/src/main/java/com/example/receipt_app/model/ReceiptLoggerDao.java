@@ -17,7 +17,7 @@ public interface ReceiptLoggerDao {
     void deleteAll();
 
     @Insert
-    void insert(ReceiptLogger receipt);
+    long insert(ReceiptLogger receipt);
 
     @Update
     void update(ReceiptLogger receipt);

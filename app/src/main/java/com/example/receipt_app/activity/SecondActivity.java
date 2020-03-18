@@ -17,10 +17,12 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.example.receipt_app.Item;
 import com.example.receipt_app.JsonSearcher;
 import com.example.receipt_app.R;
 import com.example.receipt_app.database.AppDatabase;
 import com.example.receipt_app.database.AppExecutors;
+import com.example.receipt_app.model.ReceiptItems;
 import com.example.receipt_app.model.ReceiptLogger;
 import com.example.receipt_app.request_model.ByteArrRequest;
 import com.example.receipt_app.request_model.JsonRequest;
@@ -32,6 +34,7 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -45,10 +48,11 @@ public class SecondActivity extends AppCompatActivity {
     private ImageView imageView;
     private AppDatabase db;
 
-    private final String filenameInternal = "receiptLogs";
+    //private final String filenameInternal = "receiptLogs";
 
     private double total = 0.0;
     private String merchantName = "";
+    private ArrayList<Item> receiptItems = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +72,8 @@ public class SecondActivity extends AppCompatActivity {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             byteArray = stream.toByteArray();
-            String byteString = byteArray.toString();
-            System.out.println(byteString);
+            //String byteString = byteArray.toString();
+            //System.out.println(byteString);
         }
 
         Button backButton = (Button) findViewById(R.id.backBtn);
@@ -80,13 +84,10 @@ public class SecondActivity extends AppCompatActivity {
 
         buttonParse.setOnClickListener(new View.OnClickListener() {
 
-            String operationID = "15128ce3-a62e-4db5-a5a3-df42a0fe859a";
             @Override
             public void onClick(View v) {
 
-                getReceiptData(operationID, queue);
-
-                /*String url = RECEIPT_SEND_REQUEST_URL;
+                String url = RECEIPT_SEND_REQUEST_URL;
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("Content-Type", "image/jpeg");
                 headers.put("Ocp-Apim-Subscription-Key", SUB_KEY);
@@ -98,7 +99,7 @@ public class SecondActivity extends AppCompatActivity {
                             public void onResponse(JSONObject response) {
                                 try{
                                     JSONObject headers = response.getJSONObject("headers");
-                                    operationID = headers.get("apim-request-id").toString();
+                                    String operationID = headers.get("apim-request-id").toString();
                                     System.out.println(operationID);
 
                                     getReceiptData(operationID, queue);
@@ -113,7 +114,7 @@ public class SecondActivity extends AppCompatActivity {
                         error.printStackTrace();
                     }
                 }, headers, byteArray);
-                queue.add(request);*/
+                queue.add(request);
             }
         });
     }
@@ -137,15 +138,15 @@ public class SecondActivity extends AppCompatActivity {
                             String status = data.get("status").toString();
                             System.out.println(status);
                             if(!status.equals("succeeded")){
-                                Thread.sleep(8000);
+                                Thread.sleep(2000);
                                 getReceiptData(operationID, queuer);
                             }else{
 
                                 result = data;
                                 total = JsonSearcher.getReceiptNumber(result, "Total");
                                 merchantName = JsonSearcher.getReceiptString(result, "MerchantName");
-                                System.out.println(total);
-                                System.out.println(merchantName);
+                                receiptItems = JsonSearcher.getReceiptItems(result, "Items");
+
                                 // createUpdateFile(filenameInternal, result.toString(), false);
                                 saveReceiptDataToDB();
 
@@ -177,8 +178,20 @@ public class SecondActivity extends AppCompatActivity {
                 ReceiptLogger receipt = new ReceiptLogger();
                 receipt.setMerchantName(merchantName);
                 receipt.setTotal(total);
-                db.receiptLoggerDao().insert(receipt);
+               long receiptID = db.receiptLoggerDao().insert(receipt);
+               for (int i = 0; i < receiptItems.size(); i++){
+                   ReceiptItems items = new ReceiptItems();
+                   items.setItemName(receiptItems.get(i).getItemName());
+                   items.setPrice(receiptItems.get(i).getPrice());
+                   items.setId((int) receiptID);
+                   items.setItemNo(i);
+
+                   db.receiptItemsDao().insert(items);
+               }
+
                 //db.receiptLoggerDao().deleteAll();
+
+
             }
         });
     }

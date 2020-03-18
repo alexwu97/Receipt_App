@@ -2,10 +2,16 @@ package com.example.receipt_app.model;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 
-@Entity(primaryKeys = {"id", "itemNo"}, tableName = "items")
+@Entity(primaryKeys = {"receiptNumber", "itemNumber"}, tableName = "items",
+        foreignKeys = @ForeignKey(entity = ReceiptLogger.class,
+        parentColumns = "id",
+        childColumns = "receiptNumber",
+        onDelete = ForeignKey.CASCADE)
+)
 public class ReceiptItems {
     @ColumnInfo(name = "receiptNumber")
     private int id;
@@ -13,7 +19,7 @@ public class ReceiptItems {
     @ColumnInfo(name = "itemNumber")
     private int itemNo;
 
-    @ColumnInfo(name = "ItemName")
+    @ColumnInfo(name = "itemName")
     private String itemName;
 
     @ColumnInfo(name = "Price")

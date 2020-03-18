@@ -10,8 +10,8 @@ import androidx.room.Update;
 
 @Dao
 public interface ReceiptItemsDao {
-    @Query("SELECT * from items where receiptNumber = receiptNo")
-    List<ReceiptItems> getAll(int receiptNo);
+    @Query("SELECT * from items where receiptNumber = :receiptNo")
+    List<ReceiptItems> getReceiptItems(int receiptNo);
 
     @Query("DELETE FROM items")
     void deleteAll();
