@@ -13,6 +13,10 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.receipt_app.R;
+import com.example.receipt_app.database.AppDatabase;
+import com.example.receipt_app.database.AppExecutors;
+import com.example.receipt_app.model.ReceiptItems;
+import com.example.receipt_app.model.ReceiptLogger;
 import com.example.receipt_app.view.LogDisplay;
 
 import java.io.File;
@@ -27,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST_CODE = 200;
     String currentPhotoPath;
     private static Uri photoURI;
+    private AppDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +60,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent startIntent = new Intent(getApplicationContext(), LogDisplay.class);
                 startActivity(startIntent);
+            }
+        });
+
+        Button deleteLogBtn = (Button) findViewById(R.id.deleteLogBtn);
+        deleteLogBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteReceiptDataInDB();
             }
         });
     }
@@ -121,6 +134,17 @@ public class MainActivity extends AppCompatActivity {
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    private void deleteReceiptDataInDB(){
+        db = AppDatabase.getInstance(getApplicationContext());
+
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                db.receiptLoggerDao().deleteAll();
+            }
+        });
     }
 }
 

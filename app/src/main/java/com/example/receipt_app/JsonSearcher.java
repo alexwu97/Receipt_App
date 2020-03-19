@@ -49,7 +49,7 @@ public class JsonSearcher {
         if(exists) {
             try{
                 JSONObject r = (JSONObject) object.get(searchedKey);
-                value = Double.parseDouble(r.get("text").toString().substring(1)); //eliminate the "$" sign
+                value = cleanCost(r.get("text").toString());
 
             }catch(Exception e){
                 e.printStackTrace();
@@ -95,7 +95,7 @@ public class JsonSearcher {
                         itemQuantity = cleanQuantity(quantity.get("text").toString());
                     }
                     String itemName = name.get("valueString").toString();
-                    double itemPrice = cleanCost(price.get("text").toString().substring(1)); //eliminate "$" sign
+                    double itemPrice = cleanCost(price.get("text").toString()); //eliminate "$" sign
                     Item item = new Item(itemQuantity, itemName, itemPrice);
                     value.add(item);
                 }
@@ -129,7 +129,14 @@ public class JsonSearcher {
 
     public static double cleanCost(String price){
         price = price.replace("," , ".");
-        return Double.parseDouble(price);
+        StringBuffer priceSB = new StringBuffer();
+        for (int i = 0; i < price.length(); i++){
+            char character = price.charAt(i);
+            if(Character.isDigit(character) || character == '.'){
+                priceSB.append(character);
+            }
+        }
+        return Double.parseDouble(priceSB.toString());
 
     }
 
