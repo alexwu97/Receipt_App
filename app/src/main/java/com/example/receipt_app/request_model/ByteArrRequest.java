@@ -1,29 +1,27 @@
-package com.example.receipt_app;
+package com.example.receipt_app.request_model;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Response;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
-public class JsonRequest extends JsonObjectRequest {
+public class ByteArrRequest extends JsonObjectRequest {
     private final Map<String, String> headers;
-    private final JSONObject jsonBodyObj;
+    private final byte[] imageData;
 
-    public JsonRequest(int method, String url, JSONObject jsonRequest, Response.Listener
-            <JSONObject> listener, Response.ErrorListener errorListener, Map<String, String> headers) {
+    public ByteArrRequest(int method, String url, JSONObject jsonRequest, Response.Listener
+            <JSONObject> listener, Response.ErrorListener errorListener, Map<String, String> headers, byte[] imageData) {
         super(method, url, jsonRequest, listener, errorListener);
         this.headers = headers;
-        this.jsonBodyObj = jsonRequest;
+        this.imageData = imageData;
     }
 
     @Override
@@ -52,12 +50,6 @@ public class JsonRequest extends JsonObjectRequest {
 
     @Override
     public byte[] getBody() {
-        String requestBody = jsonBodyObj.toString();
-        try{
-            return requestBody.getBytes("utf-8");
-        }catch(UnsupportedEncodingException e){
-            e.printStackTrace();
-        }
-        return null;
+        return imageData;
     }
 }

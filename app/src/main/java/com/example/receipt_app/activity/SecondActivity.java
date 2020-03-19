@@ -1,36 +1,38 @@
-package com.example.receipt_app;
+package com.example.receipt_app.activity;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.example.receipt_app.Item;
+import com.example.receipt_app.JsonSearcher;
+import com.example.receipt_app.R;
+import com.example.receipt_app.database.AppDatabase;
+import com.example.receipt_app.database.AppExecutors;
+import com.example.receipt_app.model.ReceiptItems;
+import com.example.receipt_app.model.ReceiptLogger;
+import com.example.receipt_app.request_model.ByteArrRequest;
+import com.example.receipt_app.request_model.JsonRequest;
+import com.example.receipt_app.view.LogDisplay;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class SecondActivity extends AppCompatActivity {
 
@@ -40,8 +42,11 @@ public class SecondActivity extends AppCompatActivity {
     private JSONObject result = null;
     byte[] byteArray = {};
     private ImageView imageView;
+    private AppDatabase db;
 
-    private final String filenameInternal = "receiptLogs";
+    private double total = 0.0;
+    private String merchantName = "";
+    private ArrayList<Item> receiptItems = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +66,6 @@ public class SecondActivity extends AppCompatActivity {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             byteArray = stream.toByteArray();
-            String byteString = byteArray.toString();
-            System.out.println(byteString);
         }
 
         Button backButton = (Button) findViewById(R.id.backBtn);
@@ -73,7 +76,6 @@ public class SecondActivity extends AppCompatActivity {
 
         buttonParse.setOnClickListener(new View.OnClickListener() {
 
-            String operationID;
             @Override
             public void onClick(View v) {
 
@@ -89,7 +91,8 @@ public class SecondActivity extends AppCompatActivity {
                             public void onResponse(JSONObject response) {
                                 try{
                                     JSONObject headers = response.getJSONObject("headers");
-                                    operationID = headers.get("apim-request-id").toString();
+                                    String operationID = headers.get("apim-request-id").toString();
+                                    System.out.println(operationID);
 
                                     getReceiptData(operationID, queue);
 
@@ -127,13 +130,16 @@ public class SecondActivity extends AppCompatActivity {
                             String status = data.get("status").toString();
                             System.out.println(status);
                             if(!status.equals("succeeded")){
-                                Thread.sleep(8000);
+                                Thread.sleep(2000);
                                 getReceiptData(operationID, queuer);
                             }else{
 
                                 result = data;
-                                keyExists(result, "Total");
-                                createUpdateFile(filenameInternal, result.toString(), false);
+                                total = JsonSearcher.getReceiptNumber(result, "Total");
+                                merchantName = JsonSearcher.getReceiptString(result, "MerchantName");
+                                receiptItems = JsonSearcher.getReceiptItems(result, "Items");
+
+                                saveReceiptDataToDB();
 
                                 Intent gotoLogDisplay = new Intent(getApplicationContext(), LogDisplay.class);
                                 startActivity(gotoLogDisplay);
@@ -154,51 +160,31 @@ public class SecondActivity extends AppCompatActivity {
         queuer.add(requestGet);
     }
 
-    public void keyExists(JSONObject object, String searchedKey) {
-        boolean exists = object.has(searchedKey);
-        if(exists) {
-            try{
-                System.out.println(object.get(searchedKey).toString());
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-        if(!exists) {
-            Iterator<?> keys = object.keys();
-            while( keys.hasNext() ) {
-                String key = (String)keys.next();
-                try{
-                    if ( object.get(key) instanceof JSONObject ) {
-                         keyExists((JSONObject) object.get(key), searchedKey);
-                    }else if ( object.get(key) instanceof JSONArray){
-                        JSONArray obj = (JSONArray) object.get(key);
-                        for(int i = 0; i < obj.length(); i++){
-                            if (obj.get(i) instanceof JSONObject){
-                                 keyExists((JSONObject) obj.get(i), searchedKey);
-                            }
-                        }
-                    }
-                }catch(Exception e ){
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+    private void saveReceiptDataToDB(){
+        db = AppDatabase.getInstance(getApplicationContext());
 
-    private void createUpdateFile(String fileName, String content, boolean update) {
-        FileOutputStream outputStream;
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                ReceiptLogger receipt = new ReceiptLogger();
+                receipt.setMerchantName(merchantName);
+                receipt.setTotal(total);
+               long receiptID = db.receiptLoggerDao().insert(receipt);
+               for (int i = 0; i < receiptItems.size(); i++){
+                   ReceiptItems items = new ReceiptItems();
+                   items.setItemName(receiptItems.get(i).getItemName());
+                   items.setPrice(receiptItems.get(i).getPrice());
+                   items.setQuantity(receiptItems.get(i).getQuantity());
+                   items.setId((int) receiptID);
+                   items.setItemNo(i);
 
-        try {
-            if (update) {
-                outputStream = openFileOutput(fileName, Context.MODE_APPEND);
-            } else {
-                outputStream = openFileOutput(fileName, Context.MODE_PRIVATE);
+                   db.receiptItemsDao().insert(items);
+               }
+
+                //db.receiptLoggerDao().deleteAll();
+
+
             }
-            outputStream.write(content.getBytes());
-            outputStream.flush();
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
     }
 }

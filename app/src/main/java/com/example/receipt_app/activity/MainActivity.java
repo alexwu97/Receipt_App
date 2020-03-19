@@ -1,48 +1,30 @@
-package com.example.receipt_app;
+package com.example.receipt_app.activity;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.Handler;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.core.content.FileProvider;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.receipt_app.R;
+import com.example.receipt_app.view.LogDisplay;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import android.widget.ImageView;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int GALLERY_REQUEST_CODE = 100;
     private static final int CAMERA_REQUEST_CODE = 200;
-    ImageView imageView;
     String currentPhotoPath;
     private static Uri photoURI;
 
@@ -51,10 +33,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        imageView = (ImageView) findViewById(R.id.imageView);
-
-        Button pictureBtn = (Button) findViewById(R.id.pictureBtn);
-        pictureBtn.setOnClickListener(new View.OnClickListener() {
+        Button galleryBtn = (Button) findViewById(R.id.galleryBtn);
+        galleryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pickFromGallery();
@@ -69,33 +49,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button secondActivityBtn = (Button) findViewById(R.id.secondActivityBtn);
-        secondActivityBtn.setOnClickListener(new View.OnClickListener() {
+        Button receiptLogBtn = (Button) findViewById(R.id.receiptLogBtn);
+        receiptLogBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent startIntent = new Intent(getApplicationContext(), SecondActivity.class);
-                //startIntent.putExtra("com.example.receipt_app.SOMETHING", "HELLO WORLD!");
+                Intent startIntent = new Intent(getApplicationContext(), LogDisplay.class);
                 startActivity(startIntent);
             }
         });
-
-        Button googleBtn = (Button) findViewById(R.id.googleBtn);
-        googleBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String google = "http://old.reddit.com/r/leagueoflegends";
-                Uri webaddress = Uri.parse(google);
-
-                Intent gotoGoogle = new Intent(Intent.ACTION_VIEW, webaddress);
-                if (gotoGoogle.resolveActivity(getPackageManager()) != null) {
-                    startActivity(gotoGoogle);
-                }
-            }
-        });
-
-        final TextView textView = (TextView) findViewById(R.id.text);
-
-
     }
 
     private void pickFromGallery(){
@@ -103,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         Intent selectPictureIntent =new Intent(Intent.ACTION_PICK);
         // Sets the type as image/*. This ensures only components of type image are selected
         selectPictureIntent.setType("image/*");
-        //We pass an extra array with the accepted mime types. This will ensure only components with these MIME types as targeted.
+        //pass an extra array with the accepted mime types. This will ensure only components with these MIME types as targeted.
         String[] mimeTypes = {"image/jpeg", "image/png"};
         selectPictureIntent.putExtra(Intent.EXTRA_MIME_TYPES,mimeTypes);
         // Launching the Intent
