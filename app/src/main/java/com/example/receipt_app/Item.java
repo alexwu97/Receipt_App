@@ -1,21 +1,22 @@
 package com.example.receipt_app;
 
 public class Item {
-    private int receiptID;
+    private int quantity;
     private String itemName;
     private double price;
 
-    public Item(String itemName, double price){
+    public Item(int quantity, String itemName, double price){
+        this.quantity = quantity;
         this.itemName = itemName;
         this.price = price;
     }
 
-    public int getReceiptID() {
-        return receiptID;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setReceiptID(int receiptID) {
-        this.receiptID = receiptID;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public String getItemName() {

@@ -1,6 +1,5 @@
 package com.example.receipt_app.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -28,15 +27,12 @@ import com.example.receipt_app.request_model.ByteArrRequest;
 import com.example.receipt_app.request_model.JsonRequest;
 import com.example.receipt_app.view.LogDisplay;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class SecondActivity extends AppCompatActivity {
 
@@ -47,8 +43,6 @@ public class SecondActivity extends AppCompatActivity {
     byte[] byteArray = {};
     private ImageView imageView;
     private AppDatabase db;
-
-    //private final String filenameInternal = "receiptLogs";
 
     private double total = 0.0;
     private String merchantName = "";
@@ -72,8 +66,6 @@ public class SecondActivity extends AppCompatActivity {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             byteArray = stream.toByteArray();
-            //String byteString = byteArray.toString();
-            //System.out.println(byteString);
         }
 
         Button backButton = (Button) findViewById(R.id.backBtn);
@@ -147,7 +139,6 @@ public class SecondActivity extends AppCompatActivity {
                                 merchantName = JsonSearcher.getReceiptString(result, "MerchantName");
                                 receiptItems = JsonSearcher.getReceiptItems(result, "Items");
 
-                                // createUpdateFile(filenameInternal, result.toString(), false);
                                 saveReceiptDataToDB();
 
                                 Intent gotoLogDisplay = new Intent(getApplicationContext(), LogDisplay.class);
@@ -183,6 +174,7 @@ public class SecondActivity extends AppCompatActivity {
                    ReceiptItems items = new ReceiptItems();
                    items.setItemName(receiptItems.get(i).getItemName());
                    items.setPrice(receiptItems.get(i).getPrice());
+                   items.setQuantity(receiptItems.get(i).getQuantity());
                    items.setId((int) receiptID);
                    items.setItemNo(i);
 
@@ -194,22 +186,5 @@ public class SecondActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-    private void createUpdateFile(String fileName, String content, boolean update) {
-        FileOutputStream outputStream;
-
-        try {
-            if (update) {
-                outputStream = openFileOutput(fileName, Context.MODE_APPEND);
-            } else {
-                outputStream = openFileOutput(fileName, Context.MODE_PRIVATE);
-            }
-            outputStream.write(content.getBytes());
-            outputStream.flush();
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

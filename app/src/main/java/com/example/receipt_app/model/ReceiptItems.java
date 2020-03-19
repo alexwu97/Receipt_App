@@ -3,8 +3,6 @@ package com.example.receipt_app.model;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
-import androidx.room.PrimaryKey;
-
 
 @Entity(primaryKeys = {"receiptNumber", "itemNumber"}, tableName = "items",
         foreignKeys = @ForeignKey(entity = ReceiptLogger.class,
@@ -24,6 +22,9 @@ public class ReceiptItems {
 
     @ColumnInfo(name = "Price")
     private double price;
+
+    @ColumnInfo(name = "Quantity")
+    private int quantity;
 
     public int getId() {
         return id;
@@ -55,5 +56,13 @@ public class ReceiptItems {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

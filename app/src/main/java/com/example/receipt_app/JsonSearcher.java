@@ -4,7 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 
 public class JsonSearcher {
@@ -20,8 +19,7 @@ public class JsonSearcher {
             }catch(Exception e){
                 e.printStackTrace();
             }
-        }
-        if(!exists) {
+        }else {
             Iterator<?> keys = object.keys();
             while( keys.hasNext() ) {
                 String key = (String)keys.next();
@@ -56,8 +54,7 @@ public class JsonSearcher {
             }catch(Exception e){
                 e.printStackTrace();
             }
-        }
-        if(!exists) {
+        }else {
             Iterator<?> keys = object.keys();
             while( keys.hasNext() ) {
                 String key = (String)keys.next();
@@ -77,7 +74,6 @@ public class JsonSearcher {
                 }
             }
         }
-
         return value;
     }
 
@@ -93,17 +89,21 @@ public class JsonSearcher {
                     JSONObject valueObject = (JSONObject) objInsideArr.get("valueObject");
                     JSONObject name = (JSONObject) valueObject.get("Name");
                     JSONObject price = (JSONObject) valueObject.get("TotalPrice");
+                    int itemQuantity = 1;
+                    if(valueObject.has("Quantity")){
+                        JSONObject quantity = (JSONObject) valueObject.get("Quantity");
+                        itemQuantity = cleanQuantity(quantity.get("text").toString());
+                    }
                     String itemName = name.get("valueString").toString();
                     double itemPrice = cleanCost(price.get("text").toString().substring(1)); //eliminate "$" sign
-                    Item item = new Item(itemName, itemPrice);
+                    Item item = new Item(itemQuantity, itemName, itemPrice);
                     value.add(item);
                 }
 
             }catch(Exception e){
                 e.printStackTrace();
             }
-        }
-        if(!exists) {
+        }else {
             Iterator<?> keys = object.keys();
             while( keys.hasNext() ) {
                 String key = (String)keys.next();
@@ -133,5 +133,27 @@ public class JsonSearcher {
 
     }
 
+    public static int cleanQuantity(String quantity){
+        quantity = quantity.trim();
+        StringBuffer quantitySB = new StringBuffer();
 
+        boolean containNonDigitAfterDigits = false;
+
+        for (int i = 0; i < quantity.length(); i++){
+            char character = quantity.charAt(i);
+            if(!Character.isDigit(character) && character != ',' && containNonDigitAfterDigits == true) break;
+            if(Character.isDigit(character)){
+                quantitySB.append(character);
+                containNonDigitAfterDigits = true;
+            }
+        }
+
+        if(quantitySB.toString().isEmpty()){
+            return 1;
+        }
+        if(Integer.parseInt(quantitySB.toString()) <= 0){
+            return 1;
+        }
+        return Integer.parseInt(quantitySB.toString());
+    }
 }

@@ -17,7 +17,6 @@ import java.util.List;
 
 public class LogDisplay extends AppCompatActivity {
 
-    private final String filenameInternal = "receiptLogs";
     private AppDatabase db;
     private CustomListAdapter adapter;
     private ListView listView;
@@ -46,20 +45,6 @@ public class LogDisplay extends AppCompatActivity {
         }
 
         grandTotal.setText("$" + sum);
-
-
-        //getReceiptDataToDB();
-
-        //Button readFileBtn = (Button) findViewById(R.id.readFileBtn);
-
-        /*readFileBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });*/
-
-
     }
 
     private void getReceiptDataToDB(){
@@ -70,30 +55,8 @@ public class LogDisplay extends AppCompatActivity {
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                receiptArr = (ArrayList<ReceiptLogger>) db.receiptLoggerDao().getAll();
-                System.out.println(receiptArr);
-                // notifying list adapter about data changes
-                // so that it renders the list view with updated data
-                //adapter.notifyDataSetChanged();
+                receiptArr = db.receiptLoggerDao().getAll();
             }
         });
     }
-
-    /*public void readFileInternalStorage(View view) {
-        try {
-            FileInputStream fileInputStream = openFileInput(filenameInternal);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
-
-            StringBuffer sb = new StringBuffer();
-            String line = reader.readLine();
-
-            while (line != null) {
-                sb.append(line);
-                line = reader.readLine();
-            }
-            tv.setText(sb.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
 }

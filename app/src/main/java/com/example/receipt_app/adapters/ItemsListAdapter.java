@@ -2,7 +2,6 @@ package com.example.receipt_app.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +10,6 @@ import android.widget.TextView;
 
 import com.example.receipt_app.R;
 import com.example.receipt_app.model.ReceiptItems;
-import com.example.receipt_app.model.ReceiptLogger;
-import com.example.receipt_app.view.ReceiptDetail;
 
 import java.util.List;
 
@@ -50,17 +47,15 @@ public class ItemsListAdapter extends BaseAdapter {
         if (convertView == null)
             convertView = inflater.inflate(R.layout.list_row, null);
 
-        TextView title = (TextView) convertView.findViewById(R.id.title);
-        TextView rating = (TextView) convertView.findViewById(R.id.rating);
+        TextView itemName = (TextView) convertView.findViewById(R.id.name);
+        TextView itemPrice = (TextView) convertView.findViewById(R.id.price);
 
-        // getting movie data for the row
         ReceiptItems item = items.get(position);
 
-        // title
-        title.setText(item.getItemName());
+        String quantityAndName = item.getQuantity() + "x " + item.getItemName();
+        itemName.setText(quantityAndName);
 
-        // rating
-        rating.setText("$" + item.getPrice());
+        itemPrice.setText("$" + item.getPrice());
 
         return convertView;
     }

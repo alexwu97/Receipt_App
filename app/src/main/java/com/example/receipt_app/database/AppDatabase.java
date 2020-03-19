@@ -11,7 +11,7 @@ import com.example.receipt_app.model.ReceiptItemsDao;
 import com.example.receipt_app.model.ReceiptLogger;
 import com.example.receipt_app.model.ReceiptLoggerDao;
 
-@Database(entities = {ReceiptLogger.class, ReceiptItems.class}, exportSchema = false, version = 3)
+@Database(entities = {ReceiptLogger.class, ReceiptItems.class}, exportSchema = false, version = 4)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "ReceiptLogger_db";

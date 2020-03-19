@@ -49,17 +49,15 @@ public class CustomListAdapter extends BaseAdapter {
         if (convertView == null)
             convertView = inflater.inflate(R.layout.list_row, null);
 
-        TextView title = (TextView) convertView.findViewById(R.id.title);
-        TextView rating = (TextView) convertView.findViewById(R.id.rating);
+        TextView receiptName = (TextView) convertView.findViewById(R.id.name);
+        TextView receiptTotal = (TextView) convertView.findViewById(R.id.price);
 
-        // getting movie data for the row
         ReceiptLogger logger = loggers.get(position);
 
-        // title
-        title.setText(logger.getMerchantName());
+        receiptName.setText(logger.getMerchantName());
 
-        // rating
-        rating.setText("$" + logger.getTotal());
+
+        receiptTotal.setText("$" + logger.getTotal());
 
         convertView.setOnClickListener(new imageViewClickListener(position));
 

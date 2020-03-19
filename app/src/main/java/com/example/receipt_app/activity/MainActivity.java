@@ -11,9 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 
 import com.example.receipt_app.R;
 import com.example.receipt_app.view.LogDisplay;
@@ -67,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         Intent selectPictureIntent =new Intent(Intent.ACTION_PICK);
         // Sets the type as image/*. This ensures only components of type image are selected
         selectPictureIntent.setType("image/*");
-        //We pass an extra array with the accepted mime types. This will ensure only components with these MIME types as targeted.
+        //pass an extra array with the accepted mime types. This will ensure only components with these MIME types as targeted.
         String[] mimeTypes = {"image/jpeg", "image/png"};
         selectPictureIntent.putExtra(Intent.EXTRA_MIME_TYPES,mimeTypes);
         // Launching the Intent
