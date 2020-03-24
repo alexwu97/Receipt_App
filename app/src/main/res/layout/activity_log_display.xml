@@ -37,9 +37,9 @@
                 android:id="@+id/button"
                 android:layout_width="80dp"
                 android:layout_height="49dp"
-                android:layout_marginBottom="3dp"
                 android:layout_gravity="left"
-                android:text="Button" />
+                android:layout_marginBottom="3dp"
+                android:text="Back" />
 
             <EditText
                 android:id="@+id/editText"
