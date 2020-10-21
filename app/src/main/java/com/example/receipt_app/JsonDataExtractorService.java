@@ -1,12 +1,15 @@
 package com.example.receipt_app;
 
+import com.example.receipt_app.model.ReceiptItems;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
-public class JsonSearcher {
+public class JsonDataExtractorService {
 
     public static String getReceiptString(JSONObject object, String searchedKey) {
         String value = "";
@@ -77,8 +80,8 @@ public class JsonSearcher {
         return value;
     }
 
-    public static ArrayList<Item> getReceiptItems(JSONObject object, String searchedKey) {
-        ArrayList<Item> value = new ArrayList<>();
+    public static List<ReceiptItems> getReceiptItems(JSONObject object, String searchedKey) {
+        List<ReceiptItems> value = new ArrayList<>();
         boolean exists = object.has(searchedKey);
         if(exists) {
             try{
@@ -96,7 +99,10 @@ public class JsonSearcher {
                     }
                     String itemName = name.get("valueString").toString();
                     double itemPrice = cleanCost(price.get("text").toString()); //eliminate "$" sign
-                    Item item = new Item(itemQuantity, itemName, itemPrice);
+                    ReceiptItems item = new ReceiptItems();
+                    item.setQuantity(itemQuantity);
+                    item.setItemName(itemName);
+                    item.setPrice(itemPrice);
                     value.add(item);
                 }
 

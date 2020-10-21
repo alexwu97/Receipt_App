@@ -23,6 +23,11 @@ public class ItemsListAdapter extends BaseAdapter {
         this.items = items;
     }
 
+    public void setItems(List<ReceiptItems> items) {
+        this.items = items;
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         return items.size();
@@ -47,8 +52,8 @@ public class ItemsListAdapter extends BaseAdapter {
         if (convertView == null)
             convertView = inflater.inflate(R.layout.list_row, null);
 
-        TextView itemName = (TextView) convertView.findViewById(R.id.name);
-        TextView itemPrice = (TextView) convertView.findViewById(R.id.price);
+        TextView itemName = convertView.findViewById(R.id.name);
+        TextView itemPrice = convertView.findViewById(R.id.price);
 
         ReceiptItems item = items.get(position);
 

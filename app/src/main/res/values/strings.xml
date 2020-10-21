@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Receipt App</string>
+    <string name="clear_history">Clear History</string>
 </resources>

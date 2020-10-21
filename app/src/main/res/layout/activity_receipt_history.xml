@@ -4,11 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.LogDisplay">
+    android:launchMode="singleTop"
+    tools:context=".view.ReceiptHistory">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/logDisplayToolBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ActionBar"
+        app:titleTextColor="#FFFFFF" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/logDisplayToolBar"
+        android:layout_marginTop="0dp"
         android:orientation="vertical">
 
         <ListView
@@ -24,8 +36,7 @@
 
         <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="50dp"
-            >
+            android:layout_height="50dp">
 
             <View
                 android:id="@+id/view"
@@ -33,16 +44,8 @@
                 android:layout_height="1dp"
                 android:background="@android:color/darker_gray" />
 
-            <Button
-                android:id="@+id/button"
-                android:layout_width="80dp"
-                android:layout_height="49dp"
-                android:layout_gravity="left"
-                android:layout_marginBottom="3dp"
-                android:text="Back" />
-
-            <EditText
-                android:id="@+id/editText"
+            <TextView
+                android:id="@+id/totalTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="49dp"
                 android:layout_marginEnd="0dp"
@@ -62,17 +65,13 @@
                 android:layout_height="49dp"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:gravity="center"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
-                android:layout_marginBottom="3dp" />
+                android:layout_marginBottom="3dp"
+                android:gravity="center" />
 
 
         </RelativeLayout>
-
-
-
-
 
 
     </LinearLayout>

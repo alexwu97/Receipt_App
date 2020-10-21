@@ -3,21 +3,20 @@ package com.example.receipt_app.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.example.receipt_app.R;
-import com.example.receipt_app.database.AppDatabase;
-import com.example.receipt_app.database.AppExecutors;
-import com.example.receipt_app.model.ReceiptItems;
-import com.example.receipt_app.model.ReceiptLogger;
-import com.example.receipt_app.view.LogDisplay;
+import com.example.receipt_app.model.ReceiptViewModel;
+import com.example.receipt_app.view.ReceiptHistory;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,12 +30,17 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST_CODE = 200;
     String currentPhotoPath;
     private static Uri photoURI;
-    private AppDatabase db;
+    ReceiptViewModel model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+
+        //Get view model
+        model = ViewModelProviders.of(this).get(ReceiptViewModel.class);
 
         Button galleryBtn = (Button) findViewById(R.id.galleryBtn);
         galleryBtn.setOnClickListener(new View.OnClickListener() {
@@ -58,16 +62,8 @@ public class MainActivity extends AppCompatActivity {
         receiptLogBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent startIntent = new Intent(getApplicationContext(), LogDisplay.class);
+                Intent startIntent = new Intent(getApplicationContext(), ReceiptHistory.class);
                 startActivity(startIntent);
-            }
-        });
-
-        Button deleteLogBtn = (Button) findViewById(R.id.deleteLogBtn);
-        deleteLogBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteReceiptDataInDB();
             }
         });
     }
@@ -118,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                     receiptString = receiptURI.toString();
                     break;
             }
-            Intent startIntent = new Intent(getApplicationContext(), SecondActivity.class);
+            Intent startIntent = new Intent(getApplicationContext(), SubmissionActivity.class);
             startIntent.putExtra("com.example.receipt_app.PICTURE", receiptString);
             startActivity(startIntent);
         }
@@ -137,14 +133,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteReceiptDataInDB(){
-        db = AppDatabase.getInstance(getApplicationContext());
-
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                db.receiptLoggerDao().deleteAll();
-            }
-        });
+        model.deleteAll();
     }
 }
 

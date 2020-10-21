@@ -6,9 +6,21 @@
     android:layout_height="match_parent"
     tools:context=".view.ReceiptDetail">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/receiptDetailToolBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ActionBar"
+        app:titleTextColor="#FFFFFF"
+        />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/receiptDetailToolBar"
+        android:layout_marginTop="0dp"
         android:orientation="vertical">
 
         <ListView
@@ -21,28 +33,6 @@
             android:listSelector="@drawable/list_row_selector">
 
         </ListView>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_height="50dp"
-            android:layout_width="fill_parent">
-
-            <View
-                android:id="@+id/view"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray" />
-
-            <Button
-                android:id="@+id/button"
-                android:layout_width="80dp"
-                android:layout_height="49dp"
-                android:text="Back"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/view" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
 
