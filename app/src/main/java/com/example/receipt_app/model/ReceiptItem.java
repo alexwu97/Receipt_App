@@ -4,13 +4,13 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 
-@Entity(primaryKeys = {"receiptNumber", "itemNumber"}, tableName = "items",
-        foreignKeys = @ForeignKey(entity = ReceiptLogger.class,
+@Entity(primaryKeys = {"receiptNumber", "itemNumber"}, tableName = "ReceiptItem",
+        foreignKeys = @ForeignKey(entity = ReceiptMain.class,
         parentColumns = "id",
         childColumns = "receiptNumber",
         onDelete = ForeignKey.CASCADE)
 )
-public class ReceiptItems {
+public class ReceiptItem {
     @ColumnInfo(name = "receiptNumber")
     private int id;
 

@@ -6,15 +6,15 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-import com.example.receipt_app.model.ReceiptItems;
-import com.example.receipt_app.model.ReceiptItemsDao;
-import com.example.receipt_app.model.ReceiptLogger;
-import com.example.receipt_app.model.ReceiptLoggerDao;
+import com.example.receipt_app.model.ReceiptItem;
+import com.example.receipt_app.model.ReceiptItemDao;
+import com.example.receipt_app.model.ReceiptMain;
+import com.example.receipt_app.model.ReceiptMainDao;
 
-@Database(entities = {ReceiptLogger.class, ReceiptItems.class}, exportSchema = false, version = 4)
+@Database(entities = {ReceiptMain.class, ReceiptItem.class}, exportSchema = false, version = 5)
 public abstract class AppDatabase extends RoomDatabase {
 
-    private static final String DB_NAME = "ReceiptLogger_db";
+    private static final String DB_NAME = "Receipt_DB";
     private static AppDatabase instance;
 
     public static synchronized AppDatabase getInstance(Context context) {
@@ -26,6 +26,6 @@ public abstract class AppDatabase extends RoomDatabase {
         return instance;
     }
 
-    public abstract ReceiptLoggerDao receiptLoggerDao();
-    public abstract ReceiptItemsDao receiptItemsDao();
+    public abstract ReceiptMainDao receiptLoggerDao();
+    public abstract ReceiptItemDao receiptItemDao();
 }

@@ -9,33 +9,33 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.example.receipt_app.R;
-import com.example.receipt_app.model.ReceiptItems;
+import com.example.receipt_app.model.ReceiptItem;
 
 import java.util.List;
 
-public class ItemsListAdapter extends BaseAdapter {
+public class ReceiptItemListAdapter extends BaseAdapter {
     private Activity activity;
     private LayoutInflater inflater;
-    private List<ReceiptItems> items;
+    private List<ReceiptItem> receiptItemList;
 
-    public ItemsListAdapter(Activity activity, List<ReceiptItems> items) {
+    public ReceiptItemListAdapter(Activity activity, List<ReceiptItem> receiptItemList) {
         this.activity = activity;
-        this.items = items;
+        this.receiptItemList = receiptItemList;
     }
 
-    public void setItems(List<ReceiptItems> items) {
-        this.items = items;
+    public void setReceiptItemList(List<ReceiptItem> receiptItemList) {
+        this.receiptItemList = receiptItemList;
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return items.size();
+        return receiptItemList.size();
     }
 
     @Override
     public Object getItem(int location) {
-        return items.get(location);
+        return receiptItemList.get(location);
     }
 
     @Override
@@ -46,21 +46,22 @@ public class ItemsListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        if (inflater == null)
-            inflater = (LayoutInflater) activity
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (convertView == null)
+        if (inflater == null) {
+            inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+        if (convertView == null){
             convertView = inflater.inflate(R.layout.list_row, null);
+        }
 
         TextView itemName = convertView.findViewById(R.id.name);
         TextView itemPrice = convertView.findViewById(R.id.price);
 
-        ReceiptItems item = items.get(position);
+        ReceiptItem receiptItem = receiptItemList.get(position);
 
-        String quantityAndName = item.getQuantity() + "x " + item.getItemName();
+        String quantityAndName = receiptItem.getQuantity() + "x " + receiptItem.getItemName();
         itemName.setText(quantityAndName);
 
-        itemPrice.setText("$" + item.getPrice());
+        itemPrice.setText("$" + receiptItem.getPrice());
 
         return convertView;
     }

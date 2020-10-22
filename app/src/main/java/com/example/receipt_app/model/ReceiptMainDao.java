@@ -10,20 +10,20 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 @Dao
-public interface ReceiptLoggerDao {
-    @Query("SELECT * from receipt")
-    LiveData<List<ReceiptLogger>> getAll();
+public interface ReceiptMainDao {
+    @Query("SELECT * from ReceiptMain")
+    LiveData<List<ReceiptMain>> getAll();
 
-    @Query("DELETE FROM receipt")
+    @Query("DELETE FROM ReceiptMain")
     void deleteAll();
 
     @Insert
-    long insert(ReceiptLogger receipt);
+    long insert(ReceiptMain receipt);
 
     @Update
-    void update(ReceiptLogger receipt);
+    void update(ReceiptMain receipt);
 
     @Delete()
-    void delete(ReceiptLogger receipt);
+    void delete(ReceiptMain receipt);
 
 }

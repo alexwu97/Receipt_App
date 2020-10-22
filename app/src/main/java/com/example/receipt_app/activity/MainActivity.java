@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -28,38 +27,36 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int GALLERY_REQUEST_CODE = 100;
     private static final int CAMERA_REQUEST_CODE = 200;
-    String currentPhotoPath;
-    private static Uri photoURI;
-    ReceiptViewModel model;
+    //String currentPhotoPath;
+    private static Uri cameraPhotoURI;
+    ReceiptViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         //Get view model
-        model = ViewModelProviders.of(this).get(ReceiptViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(ReceiptViewModel.class);
 
-        Button galleryBtn = (Button) findViewById(R.id.galleryBtn);
-        galleryBtn.setOnClickListener(new View.OnClickListener() {
+        Button accessGalleryBtn = findViewById(R.id.galleryBtn);
+        accessGalleryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pickFromGallery();
+                pickReceiptFromGallery();
             }
         });
 
-        Button cameraBtn = (Button) findViewById(R.id.cameraBtn);
-        cameraBtn.setOnClickListener(new View.OnClickListener() {
+        Button accessCameraBtn = findViewById(R.id.cameraBtn);
+        accessCameraBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                captureFromCamera();
+                captureReceiptFromCamera();
             }
         });
 
-        Button receiptLogBtn = (Button) findViewById(R.id.receiptLogBtn);
-        receiptLogBtn.setOnClickListener(new View.OnClickListener() {
+        Button receiptHistoryBtn = findViewById(R.id.receiptLogBtn);
+        receiptHistoryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent startIntent = new Intent(getApplicationContext(), ReceiptHistory.class);
@@ -68,21 +65,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void pickFromGallery(){
+    private void pickReceiptFromGallery(){
         //Create an Intent with action as ACTION_PICK
-        Intent selectPictureIntent =new Intent(Intent.ACTION_PICK);
+        Intent selectPictureIntent = new Intent(Intent.ACTION_PICK);
         // Sets the type as image/*. This ensures only components of type image are selected
         selectPictureIntent.setType("image/*");
-        //pass an extra array with the accepted mime types. This will ensure only components with these MIME types as targeted.
-        String[] mimeTypes = {"image/jpeg", "image/png"};
-        selectPictureIntent.putExtra(Intent.EXTRA_MIME_TYPES,mimeTypes);
+        //pass an extra array with the accepted mime types. Ensures only components with these MIME types as targeted.
+        String[] acceptedMimeTypes = {"image/jpeg", "image/png"};
+        selectPictureIntent.putExtra(Intent.EXTRA_MIME_TYPES, acceptedMimeTypes);
         // Launching the Intent
         startActivityForResult(selectPictureIntent, GALLERY_REQUEST_CODE);
     }
 
-    private void captureFromCamera() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+    private void captureReceiptFromCamera() {
+        Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try{
                 photoFile = createImageFile();
@@ -90,32 +87,36 @@ public class MainActivity extends AppCompatActivity {
                 ex.printStackTrace();
             }
             if (photoFile != null){
-                photoURI = FileProvider.getUriForFile(this, "com.example.receipt_app.fileprovider", photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE);
+                cameraPhotoURI = FileProvider.getUriForFile(this, "com.example.receipt_app.fileprovider", photoFile);
+                takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraPhotoURI);
+                startActivityForResult(takePhotoIntent, CAMERA_REQUEST_CODE);
             }
         }
     }
 
     @Override
-    public void onActivityResult(int requestCode,int resultCode,Intent data){
-        Uri receiptURI;
-        String receiptString = "";
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
         // Result code is RESULT_OK only if the user selects an Image
         if (resultCode == Activity.RESULT_OK) {
+            Uri receiptURI;
+            String receiptURIString = "";
+
             switch (requestCode) {
                 case GALLERY_REQUEST_CODE:
                     //data.getData returns the content URI for the selected Image
-                    receiptURI = data.getData();
-                    receiptString = receiptURI.toString();
+                    if(data.getData() == null){
+                        return;
+                    }
+                    receiptURIString = data.getData().toString();
                     break;
                 case CAMERA_REQUEST_CODE:
-                    receiptURI = photoURI;
-                    receiptString = receiptURI.toString();
+                    receiptURIString = cameraPhotoURI.toString();
                     break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + requestCode);
             }
             Intent startIntent = new Intent(getApplicationContext(), SubmissionActivity.class);
-            startIntent.putExtra("com.example.receipt_app.PICTURE", receiptString);
+            startIntent.putExtra("receiptPictureURI", receiptURIString);
             startActivity(startIntent);
         }
     }
@@ -128,12 +129,8 @@ public class MainActivity extends AppCompatActivity {
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
 
         // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
+        //currentPhotoPath = image.getAbsolutePath();
         return image;
-    }
-
-    private void deleteReceiptDataInDB(){
-        model.deleteAll();
     }
 }
 

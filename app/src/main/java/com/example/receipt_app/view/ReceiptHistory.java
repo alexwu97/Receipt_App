@@ -14,21 +14,19 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.receipt_app.R;
-import com.example.receipt_app.adapters.CustomListAdapter;
-import com.example.receipt_app.model.ReceiptLogger;
+import com.example.receipt_app.adapters.ReceiptListAdapter;
+import com.example.receipt_app.model.ReceiptMain;
 import com.example.receipt_app.model.ReceiptViewModel;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ReceiptHistory extends AppCompatActivity {
 
-    private CustomListAdapter adapter;
-    private ListView listView;
-    List<ReceiptLogger> receiptArr= new ArrayList<>();
-    final Activity logDisplayActivity = this;
-    ReceiptViewModel model;
+    private ReceiptListAdapter adapter;
+    List<ReceiptMain> receiptMainList = new ArrayList<>();
+    final Activity receiptHistoryActivity = this;
+    ReceiptViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,27 +42,27 @@ public class ReceiptHistory extends AppCompatActivity {
         toolbar.showOverflowMenu();
 
         //Get view model
-        model = ViewModelProviders.of(this).get(ReceiptViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(ReceiptViewModel.class);
 
         //Set up the list with adapter
-        listView = findViewById(R.id.list);
-        adapter = new CustomListAdapter(logDisplayActivity, receiptArr);
+        adapter = new ReceiptListAdapter(receiptHistoryActivity, receiptMainList);
+        ListView listView = findViewById(R.id.list);
         listView.setAdapter(adapter);
 
-        //observer on when the view model updates to the latest info
-        model.getAllReceipts().observe(this, new Observer<List<ReceiptLogger>>() {
+        //Observe when the view model updates to the latest info
+        viewModel.getAllReceipts().observe(this, new Observer<List<ReceiptMain>>() {
             @Override
-            public void onChanged(@Nullable List<ReceiptLogger> receiptLoggerList) {
-
-                receiptArr = receiptLoggerList;
-                adapter.setLoggers(receiptLoggerList);
-
-                double sum = 0.0;
-                for (ReceiptLogger i : receiptArr) {
-                    sum += i.getTotal();
+            public void onChanged(@Nullable List<ReceiptMain> receiptList) {
+                //Update the receipt history list
+                receiptMainList = receiptList;
+                adapter.setReceiptMainList(receiptMainList);
+                //Calculate all the receipts' costs
+                double allReceiptsSum = 0.0;
+                for (ReceiptMain i : receiptMainList) {
+                    allReceiptsSum += i.getTotal();
                 }
                 TextView grandTotal = findViewById(R.id.totalText);
-                grandTotal.setText("$" + sum);
+                grandTotal.setText("$".concat(String.valueOf(allReceiptsSum)));
 
             }
         });
@@ -80,7 +78,7 @@ public class ReceiptHistory extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete: {
-                model.deleteAll();
+                viewModel.deleteAll();
                 break;
             } default:
                 return super.onOptionsItemSelected(item);

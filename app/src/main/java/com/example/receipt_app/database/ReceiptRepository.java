@@ -4,65 +4,65 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
-import com.example.receipt_app.model.ReceiptItems;
-import com.example.receipt_app.model.ReceiptItemsDao;
-import com.example.receipt_app.model.ReceiptLogger;
-import com.example.receipt_app.model.ReceiptLoggerDao;
+import com.example.receipt_app.model.ReceiptItem;
+import com.example.receipt_app.model.ReceiptItemDao;
+import com.example.receipt_app.model.ReceiptMain;
+import com.example.receipt_app.model.ReceiptMainDao;
 
 import java.util.List;
 
 public class ReceiptRepository {
-    private ReceiptLoggerDao receiptLoggerDao;
-    private ReceiptItemsDao receiptItemsDao;
-    private LiveData<List<ReceiptLogger>> mAllReceipts;
-    private LiveData<List<ReceiptItems>> mAllReceiptItems;
+    private ReceiptMainDao receiptMainDao;
+    private ReceiptItemDao receiptItemDao;
+    private LiveData<List<ReceiptMain>> mAllReceipts;
+    private LiveData<List<ReceiptItem>> mAllReceiptItems;
 
     public ReceiptRepository(Application application){
         AppDatabase db = AppDatabase.getInstance(application);
-        receiptLoggerDao = db.receiptLoggerDao();
-        mAllReceipts = receiptLoggerDao.getAll();
-        receiptItemsDao = db.receiptItemsDao();
-        mAllReceiptItems = receiptItemsDao.getAllReceiptItems();
+        receiptMainDao = db.receiptLoggerDao();
+        mAllReceipts = receiptMainDao.getAll();
+        receiptItemDao = db.receiptItemDao();
+        mAllReceiptItems = receiptItemDao.getAllReceiptItems();
     }
 
-    public LiveData<List<ReceiptLogger>> getAllReceipts(){
+    public LiveData<List<ReceiptMain>> getAllReceipts(){
         return mAllReceipts;
     }
 
-    public LiveData<List<ReceiptItems>> getAllReceiptItems(){
+    public LiveData<List<ReceiptItem>> getAllReceiptItems(){
         return mAllReceiptItems;
     }
 
-    public void insertReceiptLogger(final ReceiptLogger receipt){
+    public void insertReceiptLogger(final ReceiptMain receipt){
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                receiptLoggerDao.insert(receipt);
+                receiptMainDao.insert(receipt);
             }
         });
     }
 
-    public void insert(final ReceiptLogger receipt, final List<ReceiptItems> receiptItemsList){
+    public void insert(final ReceiptMain receipt, final List<ReceiptItem> receiptItemList){
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                long generatedID = receiptLoggerDao.insert(receipt);
-                for (int i = 0; i < receiptItemsList.size(); i++){
-                    ReceiptItems receiptItems = receiptItemsList.get(i);
-                    receiptItems.setId((int) generatedID);
-                    receiptItems.setItemNo(i);
+                long generatedID = receiptMainDao.insert(receipt);
+                for (int i = 0; i < receiptItemList.size(); i++){
+                    ReceiptItem receiptItem = receiptItemList.get(i);
+                    receiptItem.setId((int) generatedID);
+                    receiptItem.setItemNo(i);
 
-                    receiptItemsDao.insert(receiptItems);
+                    receiptItemDao.insert(receiptItem);
                 }
             }
         });
     }
 
-    public void insertReceiptItem(final ReceiptItems receiptItem){
+    public void insertReceiptItem(final ReceiptItem receiptItem){
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                receiptItemsDao.insert(receiptItem);
+                receiptItemDao.insert(receiptItem);
             }
         });
     }
@@ -71,8 +71,8 @@ public class ReceiptRepository {
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                receiptLoggerDao.deleteAll();
-                receiptItemsDao.deleteAll();
+                receiptMainDao.deleteAll();
+                receiptItemDao.deleteAll();
             }
         });
     }

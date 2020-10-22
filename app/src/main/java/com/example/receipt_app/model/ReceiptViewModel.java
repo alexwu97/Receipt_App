@@ -12,8 +12,8 @@ import java.util.List;
 
 public class ReceiptViewModel extends AndroidViewModel {
     private ReceiptRepository repository;
-    private LiveData<List<ReceiptLogger>> allReceipts;
-    private LiveData<List<ReceiptItems>> allReceiptItems;
+    private LiveData<List<ReceiptMain>> allReceipts;
+    private LiveData<List<ReceiptItem>> allReceiptItems;
 
     public ReceiptViewModel(@NonNull Application application) {
         super(application);
@@ -22,25 +22,25 @@ public class ReceiptViewModel extends AndroidViewModel {
         allReceiptItems = repository.getAllReceiptItems();
     }
 
-    public LiveData<List<ReceiptLogger>> getAllReceipts(){
+    public LiveData<List<ReceiptMain>> getAllReceipts(){
         return allReceipts;
     }
 
-    public LiveData<List<ReceiptItems>> getAllReceiptItems(){
+    public LiveData<List<ReceiptItem>> getAllReceiptItems(){
         return allReceiptItems;
     }
 
 
-    public void insertReceiptLogger(ReceiptLogger receipt){
+    public void insertReceiptLogger(ReceiptMain receipt){
         repository.insertReceiptLogger(receipt);
     }
 
-    public void insertReceiptItem(ReceiptItems receiptItem){
+    public void insertReceiptItem(ReceiptItem receiptItem){
         repository.insertReceiptItem(receiptItem);
     }
 
-    public void insertReceipt(ReceiptLogger receipt, List<ReceiptItems> receiptItemsList){
-        repository.insert(receipt, receiptItemsList);
+    public void insertReceipt(ReceiptMain receipt, List<ReceiptItem> receiptItemList){
+        repository.insert(receipt, receiptItemList);
     }
 
     public void deleteAll(){

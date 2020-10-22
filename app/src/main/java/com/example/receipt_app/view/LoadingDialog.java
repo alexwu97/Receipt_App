@@ -1,8 +1,10 @@
-package com.example.receipt_app;
+package com.example.receipt_app.view;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.view.LayoutInflater;
+
+import com.example.receipt_app.R;
 
 public class LoadingDialog {
     private Activity activity;

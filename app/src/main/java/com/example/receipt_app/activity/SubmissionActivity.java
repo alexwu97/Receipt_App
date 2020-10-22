@@ -18,11 +18,11 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
-import com.example.receipt_app.JsonDataExtractorService;
-import com.example.receipt_app.LoadingDialog;
+import com.example.receipt_app.service.JsonDataExtractorService;
+import com.example.receipt_app.view.LoadingDialog;
 import com.example.receipt_app.R;
-import com.example.receipt_app.model.ReceiptItems;
-import com.example.receipt_app.model.ReceiptLogger;
+import com.example.receipt_app.model.ReceiptItem;
+import com.example.receipt_app.model.ReceiptMain;
 import com.example.receipt_app.model.ReceiptViewModel;
 import com.example.receipt_app.request_model.ByteArrRequest;
 import com.example.receipt_app.request_model.JsonRequest;
@@ -41,31 +41,14 @@ public class SubmissionActivity extends AppCompatActivity {
     private final static String UPLOAD_RECEIPT_REQUEST_URL = "https://receiptrecognize.cognitiveservices.azure.com/formrecognizer/v2.0-preview/prebuilt/receipt/analyze";
     private final static String RECEIPT_RESULT_REQUEST_URL = "https://receiptrecognize.cognitiveservices.azure.com/formrecognizer/v2.0-preview/prebuilt/receipt/analyzeResults/";
     private final static String SUBSCRIPTION_KEY = "f2b2a6bf17ff4e119dbdcda4a4ae3d94";
-    byte[] byteArray = {};
-    private ImageView imageView;
-    ReceiptViewModel model;
-
+    private byte[] receiptImageByteArray = new byte[0];
+    ReceiptViewModel viewModel;
     LoadingDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_submission);
-
-        if (getIntent().hasExtra("com.example.receipt_app.PICTURE")){
-
-            String text = getIntent().getExtras().getString("com.example.receipt_app.PICTURE");
-            Uri texts = Uri.parse(text);
-            System.out.println(text);
-            imageView = findViewById(R.id.selectedReceipt);
-            imageView.setImageURI(texts);
-            imageView.invalidate();
-            BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
-            Bitmap photo = drawable.getBitmap();
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            byteArray = stream.toByteArray();
-        }
 
         //Set up the actionbar
         Toolbar toolBar = findViewById(R.id.secondActivityToolbar);
@@ -74,36 +57,53 @@ public class SubmissionActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Button buttonParse = findViewById(R.id.submitBtn);
+        ImageView receiptImage = findViewById(R.id.selectedReceipt);
+
+        if (getIntent().hasExtra("receiptPictureURI")){
+            Uri receiptImageURI = Uri.parse(getIntent().getExtras().getString("receiptPictureURI"));
+            receiptImage.setImageURI(receiptImageURI);
+            receiptImage.invalidate();
+            BitmapDrawable receiptImageDrawable = (BitmapDrawable) receiptImage.getDrawable();
+            Bitmap receiptImageBitMap = receiptImageDrawable.getBitmap();
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            receiptImageBitMap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            receiptImageByteArray = stream.toByteArray();
+        }
+
+        Button submitBtn = findViewById(R.id.submitBtn);
         loadingDialog = new LoadingDialog(this);
 
         //Get view model
-        model = ViewModelProviders.of(this).get(ReceiptViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(ReceiptViewModel.class);
 
-        // Instantiate the RequestQueue.
-        final RequestQueue queue = Volley.newRequestQueue(this);
+        //Instantiate the request queue
+        final RequestQueue uploadImageRequestQueue = Volley.newRequestQueue(this);
 
-        buttonParse.setOnClickListener(new View.OnClickListener() {
+        submitBtn.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 //Start the loading screen UI while making request calls to APIs
                 loadingDialog.startLoadingDialog();
 
-                HashMap<String, String> headers = new HashMap<>();
-                headers.put("Content-Type", "image/jpeg");
-                headers.put(RECEIPT_HEADER_SUBKEY_REQUEST, SUBSCRIPTION_KEY);
+                HashMap<String, String> uploadReceiptRequestHeader = new HashMap<>();
+                uploadReceiptRequestHeader.put("Content-Type", "image/jpeg");
+                uploadReceiptRequestHeader.put(RECEIPT_HEADER_SUBKEY_REQUEST, SUBSCRIPTION_KEY);
 
-                ByteArrRequest request = new ByteArrRequest(Request.Method.POST, UPLOAD_RECEIPT_REQUEST_URL, null,
+                //First API request: post binary data of receipt image to API
+                ByteArrRequest uploadReceiptRequest = new ByteArrRequest(Request.Method.POST, UPLOAD_RECEIPT_REQUEST_URL, null,
                         new Response.Listener<JSONObject>()
                         {
                             @Override
                             public void onResponse(JSONObject response) {
                                 try{
-                                    JSONObject headers = response.getJSONObject("headers");
-                                    String operationID = headers.get("apim-request-id").toString();
+                                    //get the endpoint from the response header for retrieving extracted data
+                                    JSONObject uploadReceiptResponseHeader = response.getJSONObject("headers");
+                                    String operationID = uploadReceiptResponseHeader.get("apim-request-id").toString();
 
-                                    getReceiptData(operationID, queue);
+                                    //on getting response, perform API call on the new endpoint
+                                    //to get the extracted data
+                                    getReceiptData(operationID, uploadImageRequestQueue);
 
                                 } catch (JSONException e){
                                     e.printStackTrace();
@@ -114,38 +114,37 @@ public class SubmissionActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
                     }
-                }, headers, byteArray);
-                queue.add(request);
+                }, uploadReceiptRequestHeader, receiptImageByteArray);
+                uploadImageRequestQueue.add(uploadReceiptRequest);
             }
         });
     }
 
     void getReceiptData(String id, RequestQueue queue){
 
-        final RequestQueue queuer = queue;
+        final RequestQueue getReceiptDataRequestQueue = queue;
         final String operationID = id;
-        String retrieveReceiptResultURL = RECEIPT_RESULT_REQUEST_URL + operationID;
-        HashMap<String, String> headersGet = new HashMap<>();
-        headersGet.put(RECEIPT_HEADER_SUBKEY_REQUEST, SUBSCRIPTION_KEY);
+        String getReceiptResultURL = RECEIPT_RESULT_REQUEST_URL + operationID;
+        HashMap<String, String> resultRequestHeaders = new HashMap<>();
+        resultRequestHeaders.put(RECEIPT_HEADER_SUBKEY_REQUEST, SUBSCRIPTION_KEY);
 
-        // onSuccess, call second request
-        JsonRequest requestGet = new JsonRequest(Request.Method.GET, retrieveReceiptResultURL, null,
+        //Second API request: get data extracted from receipt image
+        JsonRequest getReceiptDataRequest = new JsonRequest(Request.Method.GET, getReceiptResultURL, null,
                 new Response.Listener<JSONObject>()
                 {
                     @Override
                     public void onResponse(JSONObject response) {
                         try{
-                            JSONObject data = response.getJSONObject("data");
-                            String status = data.get("status").toString();
+                            JSONObject receiptData = response.getJSONObject("data");
+                            String status = receiptData.get("status").toString();
                             if(!status.equals("succeeded")){
+                                //wait 2 seconds and try again
                                 Thread.sleep(2000);
-                                getReceiptData(operationID, queuer);
+                                getReceiptData(operationID, getReceiptDataRequestQueue);
                             }else{
-                                ReceiptLogger receipt = new ReceiptLogger();
-                                receipt.setTotal(JsonDataExtractorService.getReceiptNumber(data, "Total"));
-                                receipt.setMerchantName(JsonDataExtractorService.getReceiptString(data, "MerchantName"));
-                                List<ReceiptItems> receiptItems = JsonDataExtractorService.getReceiptItems(data, "Items");
-
+                                //get receipt information from the extracted JSON data and save it to DB
+                                ReceiptMain receipt = JsonDataExtractorService.getReceiptFromReceiptData(receiptData);
+                                List<ReceiptItem> receiptItems = JsonDataExtractorService.getReceiptItems(receiptData, "Items");
                                 saveReceiptDataToDB(receipt, receiptItems);
 
                                 loadingDialog.dismissDialog();
@@ -162,12 +161,12 @@ public class SubmissionActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
                     }
-                }, headersGet
+                }, resultRequestHeaders
         );
-        queuer.add(requestGet);
+        getReceiptDataRequestQueue.add(getReceiptDataRequest);
     }
 
-    private void saveReceiptDataToDB(ReceiptLogger receipt, List<ReceiptItems> receiptItems){
-        model.insertReceipt(receipt, receiptItems);
+    private void saveReceiptDataToDB(ReceiptMain receipt, List<ReceiptItem> receiptItems){
+        viewModel.insertReceipt(receipt, receiptItems);
     }
 }

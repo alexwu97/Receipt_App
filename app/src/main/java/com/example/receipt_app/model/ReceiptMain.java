@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 
-@Entity(tableName = "receipt")
-public class ReceiptLogger implements Serializable {
+@Entity(tableName = "ReceiptMain")
+public class ReceiptMain implements Serializable {
     @PrimaryKey(autoGenerate = true)
     private int id;
 

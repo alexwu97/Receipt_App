@@ -10,34 +10,34 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.example.receipt_app.R;
-import com.example.receipt_app.model.ReceiptLogger;
+import com.example.receipt_app.model.ReceiptMain;
 import com.example.receipt_app.view.ReceiptDetail;
 
 import java.util.List;
 
-public class CustomListAdapter extends BaseAdapter {
+public class ReceiptListAdapter extends BaseAdapter {
     private Activity activity;
     private LayoutInflater inflater;
-    private List<ReceiptLogger> loggers;
+    private List<ReceiptMain> receiptMainList;
 
-    public CustomListAdapter(Activity activity, List<ReceiptLogger> loggers) {
+    public ReceiptListAdapter(Activity activity, List<ReceiptMain> receiptMainList) {
         this.activity = activity;
-        this.loggers = loggers;
+        this.receiptMainList = receiptMainList;
     }
 
-    public void setLoggers(List<ReceiptLogger> loggers) {
-        this.loggers = loggers;
+    public void setReceiptMainList(List<ReceiptMain> receiptMainList) {
+        this.receiptMainList = receiptMainList;
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return loggers.size();
+        return receiptMainList.size();
     }
 
     @Override
     public Object getItem(int location) {
-        return loggers.get(location);
+        return receiptMainList.get(location);
     }
 
     @Override
@@ -55,18 +55,15 @@ public class CustomListAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.list_row, null);
         }
 
-        TextView receiptName = (TextView) convertView.findViewById(R.id.name);
-        TextView receiptTotal = (TextView) convertView.findViewById(R.id.price);
+        TextView receiptName = convertView.findViewById(R.id.name);
+        TextView receiptTotal = convertView.findViewById(R.id.price);
 
-        ReceiptLogger logger = loggers.get(position);
+        ReceiptMain receipt = receiptMainList.get(position);
 
-        receiptName.setText(logger.getMerchantName());
-
-
-        receiptTotal.setText("$" + logger.getTotal());
+        receiptName.setText(receipt.getMerchantName());
+        receiptTotal.setText("$".concat(String.valueOf(receipt.getTotal())));
 
         convertView.setOnClickListener(new imageViewClickListener(position));
-
 
         return convertView;
     }
@@ -80,11 +77,10 @@ public class CustomListAdapter extends BaseAdapter {
 
         public void onClick(View v) {
             {
-                ReceiptLogger logger = loggers.get(position);
+                ReceiptMain receipt = receiptMainList.get(position);
                 Intent startIntent = new Intent(activity.getApplicationContext(), ReceiptDetail.class);
-                startIntent.putExtra("com.example.receipt_app.RECEIPT", logger);
+                startIntent.putExtra("receipt", receipt);
                 activity.startActivity(startIntent);
-
             }
         }
     }
