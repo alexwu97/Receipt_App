@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.receipt_app.R;
 import com.example.receipt_app.adapters.ReceiptListAdapter;
-import com.example.receipt_app.model.ReceiptMain;
+import com.example.receipt_app.model.Receipt;
 import com.example.receipt_app.model.ReceiptViewModel;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.List;
 public class ReceiptHistory extends AppCompatActivity {
 
     private ReceiptListAdapter adapter;
-    List<ReceiptMain> receiptMainList = new ArrayList<>();
+    List<Receipt> receipts = new ArrayList<>();
     final Activity receiptHistoryActivity = this;
     ReceiptViewModel viewModel;
 
@@ -45,20 +45,20 @@ public class ReceiptHistory extends AppCompatActivity {
         viewModel = ViewModelProviders.of(this).get(ReceiptViewModel.class);
 
         //Set up the list with adapter
-        adapter = new ReceiptListAdapter(receiptHistoryActivity, receiptMainList);
+        adapter = new ReceiptListAdapter(receiptHistoryActivity, receipts);
         ListView listView = findViewById(R.id.list);
         listView.setAdapter(adapter);
 
         //Observe when the view model updates to the latest info
-        viewModel.getAllReceipts().observe(this, new Observer<List<ReceiptMain>>() {
+        viewModel.getAllReceipts().observe(this, new Observer<List<Receipt>>() {
             @Override
-            public void onChanged(@Nullable List<ReceiptMain> receiptList) {
+            public void onChanged(@Nullable List<Receipt> receiptList) {
                 //Update the receipt history list
-                receiptMainList = receiptList;
-                adapter.setReceiptMainList(receiptMainList);
+                receipts = receiptList;
+                adapter.setReceipts(receipts);
                 //Calculate all the receipts' costs
                 double allReceiptsSum = 0.0;
-                for (ReceiptMain i : receiptMainList) {
+                for (Receipt i : receipts) {
                     allReceiptsSum += i.getTotal();
                 }
                 TextView grandTotal = findViewById(R.id.totalText);
@@ -80,7 +80,8 @@ public class ReceiptHistory extends AppCompatActivity {
             case R.id.action_delete: {
                 viewModel.deleteAll();
                 break;
-            } default:
+            }
+            default:
                 return super.onOptionsItemSelected(item);
         }
         return true;

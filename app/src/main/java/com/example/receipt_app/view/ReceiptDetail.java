@@ -4,23 +4,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ListView;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.example.receipt_app.R;
 import com.example.receipt_app.adapters.ReceiptItemListAdapter;
+import com.example.receipt_app.model.Receipt;
 import com.example.receipt_app.model.ReceiptItem;
-import com.example.receipt_app.model.ReceiptMain;
-import com.example.receipt_app.model.ReceiptViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ReceiptDetail extends AppCompatActivity {
-    private ReceiptMain receipt = new ReceiptMain();
+    private Receipt receipt = new Receipt();
     List<ReceiptItem> receiptItemsList = new ArrayList<>();
     private ReceiptItemListAdapter adapter;
 
@@ -29,13 +25,16 @@ public class ReceiptDetail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receipt_detail);
 
-        if (getIntent().hasExtra("receipt")){
+        if (getIntent().hasExtra("receipt")) {
             Intent retrieveIntent = getIntent();
-            receipt = (ReceiptMain) retrieveIntent.getSerializableExtra("receipt");
-        }else{
+            receipt = (Receipt) retrieveIntent.getSerializableExtra("receipt");
+
+        } else {
             Intent goBackToReceiptHistory = new Intent(getApplicationContext(), ReceiptHistory.class);
             startActivity(goBackToReceiptHistory);
         }
+
+        receiptItemsList = receipt.getItems();
 
         //Set up the actionbar
         Toolbar toolbar = findViewById(R.id.receiptDetailToolBar);
@@ -44,27 +43,8 @@ public class ReceiptDetail extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(receipt.getMerchantName());
 
-        //Get view model
-        ReceiptViewModel viewModel = ViewModelProviders.of(this).get(ReceiptViewModel.class);
-
         ListView listView = findViewById(R.id.itemList);
         adapter = new ReceiptItemListAdapter(this, receiptItemsList);
         listView.setAdapter(adapter);
-
-        viewModel.getAllReceiptItems().observe(this, new Observer<List<ReceiptItem>>() {
-            @Override
-            public void onChanged(@Nullable List<ReceiptItem> itemList) {
-                receiptItemsList.clear();
-                if(itemList != null){
-                    for(ReceiptItem item : itemList){
-                        if(item.getId() == receipt.getId()){
-                            receiptItemsList.add(item);
-                        }
-                    }
-                }
-
-                adapter.setReceiptItemList(receiptItemsList);
-            }
-        });
     }
 }

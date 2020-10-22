@@ -4,75 +4,39 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
-import com.example.receipt_app.model.ReceiptItem;
-import com.example.receipt_app.model.ReceiptItemDao;
-import com.example.receipt_app.model.ReceiptMain;
-import com.example.receipt_app.model.ReceiptMainDao;
+import com.example.receipt_app.model.Receipt;
+import com.example.receipt_app.model.ReceiptDao;
 
 import java.util.List;
 
 public class ReceiptRepository {
-    private ReceiptMainDao receiptMainDao;
-    private ReceiptItemDao receiptItemDao;
-    private LiveData<List<ReceiptMain>> mAllReceipts;
-    private LiveData<List<ReceiptItem>> mAllReceiptItems;
+    private ReceiptDao receiptDao;
+    private LiveData<List<Receipt>> mAllReceipts;
 
-    public ReceiptRepository(Application application){
+    public ReceiptRepository(Application application) {
         AppDatabase db = AppDatabase.getInstance(application);
-        receiptMainDao = db.receiptLoggerDao();
-        mAllReceipts = receiptMainDao.getAll();
-        receiptItemDao = db.receiptItemDao();
-        mAllReceiptItems = receiptItemDao.getAllReceiptItems();
+        receiptDao = db.receiptDao();
+        mAllReceipts = receiptDao.getAll();
     }
 
-    public LiveData<List<ReceiptMain>> getAllReceipts(){
+    public LiveData<List<Receipt>> getAllReceipts() {
         return mAllReceipts;
     }
 
-    public LiveData<List<ReceiptItem>> getAllReceiptItems(){
-        return mAllReceiptItems;
-    }
-
-    public void insertReceiptLogger(final ReceiptMain receipt){
+    public void insertReceipt(final Receipt receipt) {
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                receiptMainDao.insert(receipt);
+                receiptDao.insert(receipt);
             }
         });
     }
 
-    public void insert(final ReceiptMain receipt, final List<ReceiptItem> receiptItemList){
+    public void deleteAll() {
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                long generatedID = receiptMainDao.insert(receipt);
-                for (int i = 0; i < receiptItemList.size(); i++){
-                    ReceiptItem receiptItem = receiptItemList.get(i);
-                    receiptItem.setId((int) generatedID);
-                    receiptItem.setItemNo(i);
-
-                    receiptItemDao.insert(receiptItem);
-                }
-            }
-        });
-    }
-
-    public void insertReceiptItem(final ReceiptItem receiptItem){
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                receiptItemDao.insert(receiptItem);
-            }
-        });
-    }
-
-    public void deleteAll(){
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                receiptMainDao.deleteAll();
-                receiptItemDao.deleteAll();
+                receiptDao.deleteAll();
             }
         });
     }

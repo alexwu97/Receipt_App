@@ -10,7 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.example.receipt_app.R;
-import com.example.receipt_app.model.ReceiptMain;
+import com.example.receipt_app.model.Receipt;
 import com.example.receipt_app.view.ReceiptDetail;
 
 import java.util.List;
@@ -18,26 +18,26 @@ import java.util.List;
 public class ReceiptListAdapter extends BaseAdapter {
     private Activity activity;
     private LayoutInflater inflater;
-    private List<ReceiptMain> receiptMainList;
+    private List<Receipt> receipts;
 
-    public ReceiptListAdapter(Activity activity, List<ReceiptMain> receiptMainList) {
+    public ReceiptListAdapter(Activity activity, List<Receipt> receipts) {
         this.activity = activity;
-        this.receiptMainList = receiptMainList;
+        this.receipts = receipts;
     }
 
-    public void setReceiptMainList(List<ReceiptMain> receiptMainList) {
-        this.receiptMainList = receiptMainList;
+    public void setReceipts(List<Receipt> receipts) {
+        this.receipts = receipts;
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return receiptMainList.size();
+        return receipts.size();
     }
 
     @Override
     public Object getItem(int location) {
-        return receiptMainList.get(location);
+        return receipts.get(location);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ReceiptListAdapter extends BaseAdapter {
         TextView receiptName = convertView.findViewById(R.id.name);
         TextView receiptTotal = convertView.findViewById(R.id.price);
 
-        ReceiptMain receipt = receiptMainList.get(position);
+        Receipt receipt = receipts.get(position);
 
         receiptName.setText(receipt.getMerchantName());
         receiptTotal.setText("$".concat(String.valueOf(receipt.getTotal())));
@@ -77,7 +77,7 @@ public class ReceiptListAdapter extends BaseAdapter {
 
         public void onClick(View v) {
             {
-                ReceiptMain receipt = receiptMainList.get(position);
+                Receipt receipt = receipts.get(position);
                 Intent startIntent = new Intent(activity.getApplicationContext(), ReceiptDetail.class);
                 startIntent.putExtra("receipt", receipt);
                 activity.startActivity(startIntent);

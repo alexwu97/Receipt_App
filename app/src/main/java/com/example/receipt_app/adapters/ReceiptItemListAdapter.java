@@ -23,11 +23,6 @@ public class ReceiptItemListAdapter extends BaseAdapter {
         this.receiptItemList = receiptItemList;
     }
 
-    public void setReceiptItemList(List<ReceiptItem> receiptItemList) {
-        this.receiptItemList = receiptItemList;
-        notifyDataSetChanged();
-    }
-
     @Override
     public int getCount() {
         return receiptItemList.size();
@@ -49,7 +44,7 @@ public class ReceiptItemListAdapter extends BaseAdapter {
         if (inflater == null) {
             inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
-        if (convertView == null){
+        if (convertView == null) {
             convertView = inflater.inflate(R.layout.list_row, null);
         }
 

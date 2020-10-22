@@ -1,29 +1,17 @@
 package com.example.receipt_app.model;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
+import java.io.Serializable;
 
-@Entity(primaryKeys = {"receiptNumber", "itemNumber"}, tableName = "ReceiptItem",
-        foreignKeys = @ForeignKey(entity = ReceiptMain.class,
-        parentColumns = "id",
-        childColumns = "receiptNumber",
-        onDelete = ForeignKey.CASCADE)
-)
-public class ReceiptItem {
-    @ColumnInfo(name = "receiptNumber")
+public class ReceiptItem implements Serializable {
+
     private int id;
 
-    @ColumnInfo(name = "itemNumber")
     private int itemNo;
 
-    @ColumnInfo(name = "itemName")
     private String itemName;
 
-    @ColumnInfo(name = "Price")
     private double price;
 
-    @ColumnInfo(name = "Quantity")
     private int quantity;
 
     public int getId() {
@@ -34,7 +22,7 @@ public class ReceiptItem {
         this.id = id;
     }
 
-    public int getItemNo(){
+    public int getItemNo() {
         return itemNo;
     }
 

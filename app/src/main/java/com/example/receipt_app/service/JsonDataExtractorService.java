@@ -1,7 +1,7 @@
 package com.example.receipt_app.service;
 
 import com.example.receipt_app.model.ReceiptItem;
-import com.example.receipt_app.model.ReceiptMain;
+import com.example.receipt_app.model.Receipt;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,16 +13,18 @@ import java.util.List;
 
 public class JsonDataExtractorService {
 
-    public static ReceiptMain getReceiptFromReceiptData(JSONObject object) throws JSONException {
-        ReceiptMain receipt = new ReceiptMain();
-        String merchantName = getStringFromJSONObject(object, "MerchantName").getString("text");
-        double total = cleanCost(getStringFromJSONObject(object, "Total").getString("text"));
+    public Receipt getReceiptFromReceiptData(JSONObject object) throws JSONException {
+        Receipt receipt = new Receipt();
+        String merchantName = searchJSONObject(object, "MerchantName").getString("text");
+        double total = cleanCost(searchJSONObject(object, "Total").getString("text"));
+        List<ReceiptItem> items = getReceiptItems(searchJSONObject(object, "Items").getJSONArray("valueArray"));
         receipt.setMerchantName(merchantName);
         receipt.setTotal(total);
+        receipt.setItems(items);
         return receipt;
     }
 
-    private static JSONObject getStringFromJSONObject(JSONObject object, String targetKey) throws JSONException {
+    private JSONObject searchJSONObject(JSONObject object, String targetKey) throws JSONException {
         if (object.has(targetKey)) {
             return object.getJSONObject(targetKey);
         }
@@ -33,16 +35,15 @@ public class JsonDataExtractorService {
             String key = (String) keys.next();
 
             if (object.get(key) instanceof JSONObject) {
-                value = getStringFromJSONObject(object.getJSONObject(key), targetKey);
+                value = searchJSONObject(object.getJSONObject(key), targetKey);
             } else if (object.get(key) instanceof JSONArray) {
-                value = getStringFromJSONArray(object.getJSONArray(key), targetKey);
+                value = searchJSONArray(object.getJSONArray(key), targetKey);
             }
         }
         return value;
     }
 
-
-    private static JSONObject getStringFromJSONArray(JSONArray array, String targetKey) throws JSONException {
+    private JSONObject searchJSONArray(JSONArray array, String targetKey) throws JSONException {
         JSONObject value = null;
 
         for (int i = 0; i < array.length(); i++) {
@@ -51,67 +52,34 @@ public class JsonDataExtractorService {
             }
 
             if (array.get(i) instanceof JSONObject) {
-                value = getStringFromJSONObject(array.getJSONObject(i), targetKey);
+                value = searchJSONObject(array.getJSONObject(i), targetKey);
             } else if (array.get(i) instanceof JSONArray) {
-                value = getStringFromJSONArray(array.getJSONArray(i), targetKey);
+                value = searchJSONArray(array.getJSONArray(i), targetKey);
             }
         }
         return value;
     }
 
-    public static List<ReceiptItem> getReceiptItems(JSONObject object, String searchedKey) {
-        List<ReceiptItem> value = new ArrayList<>();
-        if (object.has(searchedKey)) {
-            try {
-                JSONObject foundedObject = (JSONObject) object.get(searchedKey);
-                JSONArray itemArray = (JSONArray) foundedObject.get("valueArray");
-                for (int i = 0; i < itemArray.length(); i++) {
-                    JSONObject objInsideArr = (JSONObject) itemArray.get(i);
-                    JSONObject valueObject = (JSONObject) objInsideArr.get("valueObject");
-                    JSONObject name = (JSONObject) valueObject.get("Name");
-                    JSONObject price = (JSONObject) valueObject.get("TotalPrice");
-                    int itemQuantity = 1;
-                    if (valueObject.has("Quantity")) {
-                        JSONObject quantity = (JSONObject) valueObject.get("Quantity");
-                        itemQuantity = cleanQuantity(quantity.get("text").toString());
-                    }
-                    String itemName = name.get("valueString").toString();
-                    double itemPrice = cleanCost(price.get("text").toString()); //eliminate "$" sign
-                    ReceiptItem item = new ReceiptItem();
-                    item.setQuantity(itemQuantity);
-                    item.setItemName(itemName);
-                    item.setPrice(itemPrice);
-                    value.add(item);
-                }
+    private List<ReceiptItem> getReceiptItems(JSONArray itemArray) throws JSONException {
+        List<ReceiptItem> items = new ArrayList<>();
+        for (int i = 0; i < itemArray.length(); i++) {
+            JSONObject valueObject = itemArray.getJSONObject(i).getJSONObject("valueObject");
+            ReceiptItem item = new ReceiptItem();
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            Iterator<?> keys = object.keys();
-            while (keys.hasNext()) {
-                String key = (String) keys.next();
-                try {
-                    if (object.get(key) instanceof JSONObject) {
-                        value = getReceiptItems((JSONObject) object.get(key), searchedKey);
-                    } else if (object.get(key) instanceof JSONArray) {
-                        JSONArray obj = (JSONArray) object.get(key);
-                        for (int i = 0; i < obj.length(); i++) {
-                            if (obj.get(i) instanceof JSONObject) {
-                                value = getReceiptItems((JSONObject) obj.get(i), searchedKey);
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            String itemName = valueObject.getJSONObject("Name").getString("valueString");
+            int itemQuantity = (valueObject.has("Quantity")) ? cleanQuantity(valueObject.getJSONObject("Quantity").getString("text")) : 1;
+            double itemPrice = cleanCost(valueObject.getJSONObject("TotalPrice").getString("text")); //eliminate "$" sign
+
+            item.setQuantity(itemQuantity);
+            item.setItemName(itemName);
+            item.setPrice(itemPrice);
+
+            items.add(item);
         }
-
-        return value;
+        return items;
     }
 
-    private static double cleanCost(String price) {
+    private double cleanCost(String price) {
         price = price.replace(",", ".");
         StringBuilder priceSB = new StringBuilder();
         for (int i = 0; i < price.length(); i++) {
@@ -124,7 +92,7 @@ public class JsonDataExtractorService {
 
     }
 
-    private static int cleanQuantity(String quantity) {
+    private int cleanQuantity(String quantity) {
         quantity = quantity.trim();
         StringBuilder quantitySB = new StringBuilder();
 
