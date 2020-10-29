@@ -16,6 +16,7 @@ import com.example.receipt_app.view.ReceiptDetail;
 import java.util.List;
 
 public class ReceiptListAdapter extends BaseAdapter {
+    private static final String INTENT_RECEIPT_KEY = "receipt";
     private Activity activity;
     private LayoutInflater inflater;
     private List<Receipt> receipts;
@@ -61,7 +62,10 @@ public class ReceiptListAdapter extends BaseAdapter {
         Receipt receipt = receipts.get(position);
 
         receiptName.setText(receipt.getMerchantName());
-        receiptTotal.setText("$".concat(String.valueOf(receipt.getTotal())));
+
+        StringBuilder sbTotal = new StringBuilder("$");
+        sbTotal.append(receipt.getTotal());
+        receiptTotal.setText(sbTotal.toString());
 
         convertView.setOnClickListener(new imageViewClickListener(position));
 
@@ -79,7 +83,7 @@ public class ReceiptListAdapter extends BaseAdapter {
             {
                 Receipt receipt = receipts.get(position);
                 Intent startIntent = new Intent(activity.getApplicationContext(), ReceiptDetail.class);
-                startIntent.putExtra("receipt", receipt);
+                startIntent.putExtra(INTENT_RECEIPT_KEY, receipt);
                 activity.startActivity(startIntent);
             }
         }

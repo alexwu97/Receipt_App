@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReceiptHistory extends AppCompatActivity {
+    private static final String TOOLBAR_TITLE = "Receipt History";
 
     private ReceiptListAdapter adapter;
     List<Receipt> receipts = new ArrayList<>();
@@ -38,7 +39,7 @@ public class ReceiptHistory extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Receipt History");
+        getSupportActionBar().setTitle(TOOLBAR_TITLE);
         toolbar.showOverflowMenu();
 
         //Get view model
@@ -62,8 +63,9 @@ public class ReceiptHistory extends AppCompatActivity {
                     allReceiptsSum += i.getTotal();
                 }
                 TextView grandTotal = findViewById(R.id.totalText);
-                grandTotal.setText("$".concat(String.valueOf(allReceiptsSum)));
-
+                StringBuilder sbGrandTotal = new StringBuilder("$");
+                sbGrandTotal.append(allReceiptsSum);
+                grandTotal.setText(sbGrandTotal.toString());
             }
         });
     }

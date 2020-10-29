@@ -14,6 +14,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 public class JsonRequest extends JsonObjectRequest {
+    private static final String DATA = "data";
+    private static final String HEADERS = "headers";
+    private static final String UTF8 = "utf-8";
     private final Map<String, String> headers;
     private final JSONObject jsonBodyObj;
 
@@ -32,8 +35,8 @@ public class JsonRequest extends JsonObjectRequest {
 
             //Put response header and body int jsonResponse and return it as a response
             JSONObject jsonResponse = new JSONObject();
-            jsonResponse.put("data", ("".equals(jsonString))? new JSONObject(): new JSONObject(jsonString));
-            jsonResponse.put("headers", new JSONObject(response.headers));
+            jsonResponse.put(DATA, ("".equals(jsonString))? new JSONObject(): new JSONObject(jsonString));
+            jsonResponse.put(HEADERS, new JSONObject(response.headers));
 
             return Response.success(jsonResponse,
                     HttpHeaderParser.parseCacheHeaders(response));
@@ -54,7 +57,7 @@ public class JsonRequest extends JsonObjectRequest {
     public byte[] getBody() {
         String requestBody = jsonBodyObj.toString();
         try{
-            return requestBody.getBytes("utf-8");
+            return requestBody.getBytes(UTF8);
         }catch(UnsupportedEncodingException e){
             e.printStackTrace();
         }

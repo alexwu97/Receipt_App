@@ -12,6 +12,9 @@ import com.example.receipt_app.R;
 public class NotReceiptDialog {
     private Activity activity;
     private AlertDialog dialog;
+    private static final String DIALOG_TITLE = "Invalid Image";
+    private static final String DIALOG_MESSAGE = "Data could not be collected from the submitted image.";
+    private static final String OK = "OK";
 
     public NotReceiptDialog(Activity activity){
         this.activity = activity;
@@ -20,9 +23,9 @@ public class NotReceiptDialog {
     public void startNotReceiptDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setCancelable(false)
-                .setTitle("Invalid Image")
-                .setMessage("Data could not be collected from the submitted image.")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setTitle(DIALOG_TITLE)
+                .setMessage(DIALOG_MESSAGE)
+                .setPositiveButton(OK, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dismissDialog();

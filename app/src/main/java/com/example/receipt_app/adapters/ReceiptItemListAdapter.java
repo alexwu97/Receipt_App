@@ -53,10 +53,14 @@ public class ReceiptItemListAdapter extends BaseAdapter {
 
         ReceiptItem receiptItem = receiptItemList.get(position);
 
-        String quantityAndName = receiptItem.getQuantity() + "x " + receiptItem.getItemName();
+        StringBuilder sbQuantityAndName = new StringBuilder(receiptItem.getQuantity());
+        sbQuantityAndName.append("x ").append(receiptItem.getItemName());
+        String quantityAndName = sbQuantityAndName.toString();
         itemName.setText(quantityAndName);
 
-        itemPrice.setText("$" + receiptItem.getPrice());
+        StringBuilder sbPrice = new StringBuilder("$");
+        sbPrice.append(receiptItem.getPrice());
+        itemPrice.setText(sbPrice.toString());
 
         return convertView;
     }

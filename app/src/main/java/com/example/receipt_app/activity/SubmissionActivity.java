@@ -40,6 +40,15 @@ public class SubmissionActivity extends AppCompatActivity {
     private final static String UPLOAD_RECEIPT_REQUEST_URL = "https://receiptrecognize.cognitiveservices.azure.com/formrecognizer/v2.0-preview/prebuilt/receipt/analyze";
     private final static String RECEIPT_RESULT_REQUEST_URL = "https://receiptrecognize.cognitiveservices.azure.com/formrecognizer/v2.0-preview/prebuilt/receipt/analyzeResults/";
     private final static String SUBSCRIPTION_KEY = "f2b2a6bf17ff4e119dbdcda4a4ae3d94";
+    private final static String CONTENT_TYPE = "Content-Type";
+    private final static String IMAGE = "image/jpeg";
+    private final static String INTENT_KEY = "receiptPictureURI";
+    private final static String TOOLBAR_TITLE = "Submission";
+    private final static String DATA = "data";
+    private final static String STATUS = "status";
+    private final static String SUCCEED = "succeeded";
+    private final static String ENDPOINT_CONTENT = "apim-request-id";
+    private final static String HEADERS = "headers";
     private byte[] receiptImageByteArray = new byte[0];
     ReceiptViewModel viewModel;
     LoadingDialog loadingDialog;
@@ -55,15 +64,15 @@ public class SubmissionActivity extends AppCompatActivity {
         //Set up the actionbar
         Toolbar toolBar = findViewById(R.id.secondActivityToolbar);
         setSupportActionBar(toolBar);
-        getSupportActionBar().setTitle("Submission");
+        getSupportActionBar().setTitle(TOOLBAR_TITLE);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ImageView receiptImage = findViewById(R.id.selectedReceipt);
 
         //Get byte array of image
-        if (getIntent().hasExtra("receiptPictureURI")) {
-            receiptImageURI = Uri.parse(getIntent().getExtras().getString("receiptPictureURI"));
+        if (getIntent().hasExtra(INTENT_KEY)) {
+            receiptImageURI = Uri.parse(getIntent().getExtras().getString(INTENT_KEY));
             receiptImage.setImageURI(receiptImageURI);
             receiptImage.invalidate();
             BitmapDrawable receiptImageDrawable = (BitmapDrawable) receiptImage.getDrawable();
@@ -91,7 +100,7 @@ public class SubmissionActivity extends AppCompatActivity {
                 loadingDialog.startLoadingDialog();
 
                 HashMap<String, String> uploadReceiptRequestHeader = new HashMap<>();
-                uploadReceiptRequestHeader.put("Content-Type", "image/jpeg");
+                uploadReceiptRequestHeader.put(CONTENT_TYPE, IMAGE);
                 uploadReceiptRequestHeader.put(RECEIPT_HEADER_SUBKEY_REQUEST, SUBSCRIPTION_KEY);
 
                 //First API request: post binary data of receipt image to API
@@ -101,8 +110,8 @@ public class SubmissionActivity extends AppCompatActivity {
                             public void onResponse(JSONObject response) {
                                 try {
                                     //get the endpoint from the response header for retrieving extracted data
-                                    JSONObject uploadReceiptResponseHeader = response.getJSONObject("headers");
-                                    String operationID = uploadReceiptResponseHeader.get("apim-request-id").toString();
+                                    JSONObject uploadReceiptResponseHeader = response.getJSONObject(HEADERS);
+                                    String operationID = uploadReceiptResponseHeader.get(ENDPOINT_CONTENT).toString();
 
                                     //on getting response, perform API call on the new endpoint
                                     //to get the extracted data
@@ -137,9 +146,9 @@ public class SubmissionActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            JSONObject receiptData = response.getJSONObject("data");
-                            String status = receiptData.get("status").toString();
-                            if (!status.equals("succeeded")) {
+                            JSONObject receiptData = response.getJSONObject(DATA);
+                            String status = receiptData.get(STATUS).toString();
+                            if (!status.equals(SUCCEED)) {
                                 //wait 2 seconds and try again
                                 Thread.sleep(2000);
                                 getReceiptData(operationID, getReceiptDataRequestQueue);
@@ -148,11 +157,11 @@ public class SubmissionActivity extends AppCompatActivity {
                                 Receipt receipt = jsonDataExtractorService.getReceiptFromReceiptData(receiptData);
                                 //if valid photo of receipt, add image uri and save it to DB
                                 loadingDialog.dismissDialog();
-                                if(receipt != null){
+                                if (receipt != null) {
                                     saveReceiptDataToDB(receipt);
                                     Intent gotoReceiptHistory = new Intent(getApplicationContext(), ReceiptHistory.class);
                                     startActivity(gotoReceiptHistory);
-                                }else{
+                                } else {
                                     notReceiptDialog.startNotReceiptDialog();
                                 }
                             }

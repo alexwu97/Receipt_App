@@ -27,6 +27,14 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int GALLERY_REQUEST_CODE = 100;
     private static final int CAMERA_REQUEST_CODE = 200;
+    private static final String IMAGE_TYPE = "image/*";
+    private static final String JPEG = "image/jpeg";
+    private static final String PNG = "image/png";
+    private static final String FILE_PROVIDER_KEY = "com.example.receipt_app.fileprovider";
+    private static final String INTENT_KEY = "receiptPictureURI";
+    private static final String IMAGE_PREFIX_NAME = "JPEG_";
+    private static final String JPEG_EXT = ".jpg";
+    private static final String DATE_STAMP = "yyyyMMdd_HHmmss";
     //String currentPhotoPath;
     private static Uri cameraPhotoURI;
     ReceiptViewModel viewModel;
@@ -69,11 +77,13 @@ public class MainActivity extends AppCompatActivity {
     private void pickReceiptFromGallery(){
         //Create an Intent with action as ACTION_PICK
         Intent selectPictureIntent = new Intent(Intent.ACTION_PICK);
+
         // Sets the type as image/*. This ensures only components of type image are selected
-        selectPictureIntent.setType("image/*");
+        selectPictureIntent.setType(IMAGE_TYPE);
         //pass an extra array with the accepted mime types. Ensures only components with these MIME types as targeted.
-        String[] acceptedMimeTypes = {"image/jpeg", "image/png"};
+        String[] acceptedMimeTypes = {JPEG, PNG};
         selectPictureIntent.putExtra(Intent.EXTRA_MIME_TYPES, acceptedMimeTypes);
+
         // Launching the Intent
         startActivityForResult(selectPictureIntent, GALLERY_REQUEST_CODE);
     }
@@ -88,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
                 ex.printStackTrace();
             }
             if (photoFile != null){
-                cameraPhotoURI = FileProvider.getUriForFile(this, "com.example.receipt_app.fileprovider", photoFile);
+                cameraPhotoURI = FileProvider.getUriForFile(this, FILE_PROVIDER_KEY, photoFile);
                 takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraPhotoURI);
                 startActivityForResult(takePhotoIntent, CAMERA_REQUEST_CODE);
             }
@@ -116,17 +126,17 @@ public class MainActivity extends AppCompatActivity {
                     throw new IllegalStateException("Unexpected value: " + requestCode);
             }
             Intent startIntent = new Intent(getApplicationContext(), SubmissionActivity.class);
-            startIntent.putExtra("receiptPictureURI", receiptURIString);
+            startIntent.putExtra(INTENT_KEY, receiptURIString);
             startActivity(startIntent);
         }
     }
 
     private File createImageFile() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String timeStamp = new SimpleDateFormat(DATE_STAMP).format(new Date());
+        String imageFileName = IMAGE_PREFIX_NAME + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        File image = File.createTempFile(imageFileName, JPEG_EXT, storageDir);
 
         // Save a file: path for use with ACTION_VIEW intents
         //currentPhotoPath = image.getAbsolutePath();

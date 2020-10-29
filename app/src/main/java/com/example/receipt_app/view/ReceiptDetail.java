@@ -2,8 +2,6 @@ package com.example.receipt_app.view;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReceiptDetail extends AppCompatActivity {
+    private static final String INTENT_RECEIPT_KEY = "receipt";
+
     private Receipt receipt = new Receipt();
     List<ReceiptItem> receiptItemsList = new ArrayList<>();
     private ReceiptItemListAdapter adapter;
@@ -27,9 +27,9 @@ public class ReceiptDetail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receipt_detail);
 
-        if (getIntent().hasExtra("receipt")) {
+        if (getIntent().hasExtra(INTENT_RECEIPT_KEY)) {
             Intent retrieveIntent = getIntent();
-            receipt = (Receipt) retrieveIntent.getSerializableExtra("receipt");
+            receipt = (Receipt) retrieveIntent.getSerializableExtra(INTENT_RECEIPT_KEY);
         } else {
             Intent goBackToReceiptHistory = new Intent(getApplicationContext(), ReceiptHistory.class);
             startActivity(goBackToReceiptHistory);
