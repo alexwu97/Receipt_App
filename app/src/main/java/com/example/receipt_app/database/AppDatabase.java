@@ -10,7 +10,7 @@ import androidx.room.TypeConverters;
 import com.example.receipt_app.model.Receipt;
 import com.example.receipt_app.model.ReceiptDao;
 
-@Database(entities = {Receipt.class}, exportSchema = false, version = 8)
+@Database(entities = {Receipt.class}, exportSchema = false, version = 10)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 

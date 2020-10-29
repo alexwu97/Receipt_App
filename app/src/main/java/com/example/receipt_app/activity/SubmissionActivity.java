@@ -25,6 +25,7 @@ import com.example.receipt_app.R;
 import com.example.receipt_app.model.ReceiptViewModel;
 import com.example.receipt_app.request_model.ByteArrRequest;
 import com.example.receipt_app.request_model.JsonRequest;
+import com.example.receipt_app.view.NotReceiptDialog;
 import com.example.receipt_app.view.ReceiptHistory;
 
 import org.json.JSONException;
@@ -42,6 +43,8 @@ public class SubmissionActivity extends AppCompatActivity {
     private byte[] receiptImageByteArray = new byte[0];
     ReceiptViewModel viewModel;
     LoadingDialog loadingDialog;
+    NotReceiptDialog notReceiptDialog;
+    Uri receiptImageURI;
     private JsonDataExtractorService jsonDataExtractorService = new JsonDataExtractorService();
 
     @Override
@@ -58,8 +61,9 @@ public class SubmissionActivity extends AppCompatActivity {
 
         ImageView receiptImage = findViewById(R.id.selectedReceipt);
 
+        //Get byte array of image
         if (getIntent().hasExtra("receiptPictureURI")) {
-            Uri receiptImageURI = Uri.parse(getIntent().getExtras().getString("receiptPictureURI"));
+            receiptImageURI = Uri.parse(getIntent().getExtras().getString("receiptPictureURI"));
             receiptImage.setImageURI(receiptImageURI);
             receiptImage.invalidate();
             BitmapDrawable receiptImageDrawable = (BitmapDrawable) receiptImage.getDrawable();
@@ -71,6 +75,7 @@ public class SubmissionActivity extends AppCompatActivity {
 
         Button submitBtn = findViewById(R.id.submitBtn);
         loadingDialog = new LoadingDialog(this);
+        notReceiptDialog = new NotReceiptDialog(this);
 
         //Get view model
         viewModel = ViewModelProviders.of(this).get(ReceiptViewModel.class);
@@ -139,14 +144,17 @@ public class SubmissionActivity extends AppCompatActivity {
                                 Thread.sleep(2000);
                                 getReceiptData(operationID, getReceiptDataRequestQueue);
                             } else {
-                                //get receipt information from the extracted JSON data and save it to DB
+                                //get receipt information from the extracted JSON data
                                 Receipt receipt = jsonDataExtractorService.getReceiptFromReceiptData(receiptData);
-
-                                saveReceiptDataToDB(receipt);
-
+                                //if valid photo of receipt, add image uri and save it to DB
                                 loadingDialog.dismissDialog();
-                                Intent gotoReceiptHistory = new Intent(getApplicationContext(), ReceiptHistory.class);
-                                startActivity(gotoReceiptHistory);
+                                if(receipt != null){
+                                    saveReceiptDataToDB(receipt);
+                                    Intent gotoReceiptHistory = new Intent(getApplicationContext(), ReceiptHistory.class);
+                                    startActivity(gotoReceiptHistory);
+                                }else{
+                                    notReceiptDialog.startNotReceiptDialog();
+                                }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();

@@ -30,6 +30,7 @@ public class JsonRequest extends JsonObjectRequest {
             String jsonString = new String(response.data,
                     HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
 
+            //Put response header and body int jsonResponse and return it as a response
             JSONObject jsonResponse = new JSONObject();
             jsonResponse.put("data", ("".equals(jsonString))? new JSONObject(): new JSONObject(jsonString));
             jsonResponse.put("headers", new JSONObject(response.headers));
@@ -43,6 +44,7 @@ public class JsonRequest extends JsonObjectRequest {
         }
     }
 
+    //Override to provide custom request header
     @Override
     public Map<String,String> getHeaders() throws AuthFailureError {
         return headers != null ? headers : super.getHeaders();

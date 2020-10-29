@@ -2,6 +2,8 @@ package com.example.receipt_app.view;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,7 +30,6 @@ public class ReceiptDetail extends AppCompatActivity {
         if (getIntent().hasExtra("receipt")) {
             Intent retrieveIntent = getIntent();
             receipt = (Receipt) retrieveIntent.getSerializableExtra("receipt");
-
         } else {
             Intent goBackToReceiptHistory = new Intent(getApplicationContext(), ReceiptHistory.class);
             startActivity(goBackToReceiptHistory);

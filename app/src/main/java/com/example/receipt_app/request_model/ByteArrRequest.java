@@ -30,6 +30,7 @@ public class ByteArrRequest extends JsonObjectRequest {
             String jsonString = new String(response.data,
                     HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
 
+            //Put response body and header into jsonResponse and return it as response
             JSONObject jsonResponse = new JSONObject();
             jsonResponse.put("data", ("".equals(jsonString))? new JSONObject(): new JSONObject(jsonString));
             jsonResponse.put("headers", new JSONObject(response.headers));
@@ -43,11 +44,13 @@ public class ByteArrRequest extends JsonObjectRequest {
         }
     }
 
+    //Override method in order to provide custom request header
     @Override
     public Map<String,String> getHeaders() throws AuthFailureError {
         return headers != null ? headers : super.getHeaders();
     }
 
+    //Override the method to use imageData as the request body
     @Override
     public byte[] getBody() {
         return imageData;

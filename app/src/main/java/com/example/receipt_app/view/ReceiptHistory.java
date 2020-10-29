@@ -70,7 +70,7 @@ public class ReceiptHistory extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.action_bar_menu, menu);
+        getMenuInflater().inflate(R.menu.history_action_bar_menu, menu);
         return true;
     }
 

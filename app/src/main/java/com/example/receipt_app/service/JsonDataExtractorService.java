@@ -15,11 +15,16 @@ public class JsonDataExtractorService {
 
     public Receipt getReceiptFromReceiptData(JSONObject object) throws JSONException {
         Receipt receipt = new Receipt();
-        String merchantName = searchJSONObject(object, "MerchantName").getString("text");
-        double total = cleanCost(searchJSONObject(object, "Total").getString("text"));
-        List<ReceiptItem> items = getReceiptItems(searchJSONObject(object, "Items").getJSONArray("valueArray"));
-        receipt.setMerchantName(merchantName);
-        receipt.setTotal(total);
+        JSONObject merchantObj = searchJSONObject(object, "MerchantName");
+        JSONObject totalObj = searchJSONObject(object, "Total");
+        JSONObject itemObj = searchJSONObject(object, "Items");
+        //if cannot find any, it is not a receipt
+        if(merchantObj == null || totalObj == null || itemObj == null){
+            return null;
+        }
+        receipt.setMerchantName(merchantObj.getString("text"));
+        receipt.setTotal(cleanCost(totalObj.getString("text")));
+        List<ReceiptItem> items = getReceiptItems(itemObj.getJSONArray("valueArray"));
         receipt.setItems(items);
         return receipt;
     }

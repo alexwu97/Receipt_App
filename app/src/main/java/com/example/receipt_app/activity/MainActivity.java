@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(startIntent);
             }
         });
+
     }
 
     private void pickReceiptFromGallery(){
@@ -98,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         // Result code is RESULT_OK only if the user selects an Image
         if (resultCode == Activity.RESULT_OK) {
-            Uri receiptURI;
             String receiptURIString = "";
 
             switch (requestCode) {
